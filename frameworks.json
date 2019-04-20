@@ -1,0 +1,17 @@
+{
+    "UIKit.framework": 2,
+    "ImageIO.framework": 1,
+    "CoreLocation.framework": 2,
+    "AVFoundation.framework": 1,
+    "AudioToolbox.framework": 1,
+    "SystemConfiguration.framework": 2,
+    "CoreTelephony.framework": 2,
+    "CFNetwork.framework": 1,
+    "CoreFoundation.framework": 1,
+    "Foundation.framework": 1,
+    "Security.framework": 1,
+    "libz.tbd": 1,
+    "AdSupport.framework": 1,
+    "UserNotifications.framework": 1,
+    "libresolv.tbd": 1
+}

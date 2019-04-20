@@ -24,6 +24,8 @@ NSString *REPORT_CODE = @"013019";//上报
 NSString *BUILDING_CODE = @"";//建筑物code
 NSString *WATER_TEST_RESULTS_CODE = @"";//测水结果code
 
+NSString *themeState = @"light"; // dark
+
 /**
  * NET常量
  */

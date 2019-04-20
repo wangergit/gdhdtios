@@ -424,28 +424,31 @@ double curPointY = 0.0;
     AGSPoint *point = [[AGSPoint alloc] initWithX:x y:y spatialReference:mapSpatialReference];
     [self.mapView setViewpointCenter:point scale:scale completion:false];
     @try {
-//        NSMutableDictionary *m ;
-//        if ((int) scale != 0) {
-//            [self.mapView setViewpointScale:scale completion:false];
-//            [self.mapView setViewpointCenter:point scale:scale completion:false];
-//            //mhandle.removeCallbacks(timeRunable);
-//            //mhandle.postDelayed(timeRunable, 1000);
-//            if (selection) {
-//                [m setObject:@"" forKey:@"x"];
-//                Map<String, Double> my = new HashMap<>();
+        NSMutableDictionary *m ;
+        if ((int) scale != 0) {
+            //[self.mapView setViewpointScale:scale completion:false];
+            [self.mapView setViewpointCenter:point scale:scale completion:false];
+            //mhandle.removeCallbacks(timeRunable);
+            //mhandle.postDelayed(timeRunable, 1000);
+            if (selection) {
+//                NSDictionary *newDictionary=@{@"x":@1,@"age":@29};
+//
+//                NSDictionary *obj = [[NSDictionary alloc] initWithObjectsAndKeys:@x, @"key1", @"value2", @"key2",nil];
+//                [m setObject:@x forKey:@"x"];
+//                [NSMutableDictionary alloc] ini
 //                my.put("x", x);
 //                my.put("y", y);
 //                my.put("a", 0.0);
 //                my.put("w", 45.0);
 //                my.put("h", 45.0);
 //                my.put("offsetY", 5.0);
-//                setExtentFrame(my, selectionOverlay, false);
-//            }
+//                [self setExtentFrame:m :selectionOverlay :false];
+            }
 //            if (callbackContext != null) {
 //                callbackContext.success();
 //                listenableFuture.removeDoneListener(this);
 //            }
-//        } else {
+        } else {
 //            ListenableFuture<Boolean> listenableFuture = mapView.setViewpointCenterAsync(point);
 //            listenableFuture.addDoneListener(new Runnable() {
 //                @Override
@@ -468,7 +471,7 @@ double curPointY = 0.0;
 //                    }
 //                }
 //            });
-//        }
+        }
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
     } @catch (NSException *exception) {
@@ -494,6 +497,189 @@ double curPointY = 0.0;
                                                                               AGSPoint *)mappoint features:(NSDictionary *)features {
     NSLog(@"User tapped on the map at %f,%f", mappoint.x, mappoint.y);
 }
+
+/**
+ * 添加选中的矩形框符号
+ *
+ * @param params
+ * @param layer
+ */
+//- (void) setExtentFrame(Map<String, Double> params, GraphicsOverlay layer, Boolean center) {
+//    try {
+//        layer.getGraphics().clear();
+//        if (!layer.isVisible()) {
+//            layer.setVisible(true);
+//        }
+//        //添加图片要素
+//        PictureMarkerSymbol tempSymol = null;
+//        try {
+//            InputStream is = this.cordova.getActivity().getAssets().open(extentFrameImg.toString());
+//            BitmapDrawable drawable = (BitmapDrawable) BitmapDrawable.createFromStream(is, null);
+//            tempSymol = new PictureMarkerSymbol(drawable);
+//        } catch (Exception e) {
+//        }
+//
+//        final PictureMarkerSymbol campsiteSymbol = tempSymol;
+//        campsiteSymbol.setHeight(params.get("h").intValue());
+//        campsiteSymbol.setWidth(params.get("w").intValue());
+//        campsiteSymbol.setAngle(params.get("a").intValue());//角度
+//        campsiteSymbol.setOffsetY(Float.valueOf(params.get("offsetY").toString()));
+//        campsiteSymbol.loadAsync();
+//        campsiteSymbol.addDoneLoadingListener(new Runnable() {
+//            @Override
+//            public void run() {
+//                Point campsitePoint = new Point(params.get("x"), params.get("y"), ArcgisUtils.getSpatialReferences());
+//                Graphic campsiteGraphic = new Graphic(campsitePoint, campsiteSymbol);
+//                layer.getGraphics().add(campsiteGraphic);
+//                if (center) {
+//                    centerTo(params.get("x"), params.get("y"), mapView.getMapScale(), false, null);
+//                }
+//            }
+//        });
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//    }
+//}
+
+/**
+ * 换主题模式 白天黑夜两个层只保留一个，一个加载成功后把另一个删除
+ *
+ * @param theme
+ * @param callbackContext
+ */
+-(void) changeTheme:(CDVInvokedUrlCommand*)command{
+    NSString *theme = [command.arguments objectAtIndex:0];
+    @try {
+        int index = [self getVectorTiledLayerIndex];
+        themeState = theme;
+        
+        if ([theme isEqualToString:@"dark"]) {
+            if (nightTiledLayerBaseMap == NULL) {
+                nightTiledLayerBaseMap = [[AGSArcGISTiledLayer alloc] initWithURL:[NSURL URLWithString:NIGHTTILEDLAYERSERVICEURL]];
+                [nightTiledLayerBaseMap setVisible:false];
+                [self.mapView.map.basemap.baseLayers insertObject:nightTiledLayerBaseMap atIndex:1];
+                index = [self getVectorTiledLayerIndex];
+            }
+            if (nightVectorTiledLayer == NULL) {
+                nightVectorTiledLayer = [[AGSArcGISVectorTiledLayer alloc] initWithURL:[NSURL URLWithString:PATHNIGHT]];
+                [nightVectorTiledLayer setName:@"basemap_night"];
+            }
+            [nightTiledLayerBaseMap setVisible:true];
+            [tiledLayerBaseMap setVisible:false];
+            //basemap添加一个黑夜图层
+            [self.mapView.map.basemap.baseLayers removeObjectAtIndex:index];
+            [self.mapView.map.basemap.baseLayers insertObject:nightVectorTiledLayer atIndex:index];
+            [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1]];
+            //[self setEnable:true];
+            //mapView.getBackgroundGrid().setColor(Color.TRANSPARENT);
+        } else if([theme isEqualToString:@"light"]) {
+            [tiledLayerBaseMap setVisible:true];
+            if (nightTiledLayerBaseMap != NULL) {
+                [nightTiledLayerBaseMap setVisible:false];
+            }
+            [self.mapView.map.basemap.baseLayers removeObjectAtIndex:index];
+            [self.mapView.map.basemap.baseLayers insertObject:vectorTiledLayer atIndex:index];
+            
+            //mapView.getBackgroundGrid().setColor(Color.parseColor("#F4F3F0"));
+            //[self setEnable:true];
+        }
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    } @catch(NSException *exception){
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    }
+}
+
+/**
+ * 获取矢量切片的index
+ *
+ * @return
+ */
+-(int) getVectorTiledLayerIndex{
+    @try {
+        for (int i = 0; i < self.mapView.map.basemap.baseLayers.count ; i++) {
+            //[self.mapView.map.basemap.baseLay];
+            AGSLayer *layer = [self.mapView.map.basemap.baseLayers objectAtIndex:i];
+            if ([layer.name rangeOfString:@"basemap"].length > 0) {
+                return i;
+            }
+        }
+    } @catch (NSException *exception){
+        
+    }
+    return 1;
+}
+
+/**
+ * 控制在线陆地图层显示与隐藏
+ *
+ * @param visible
+ * @param callbackContext
+ */
+//public void changeTieldLayerVisible(Boolean visible, CallbackContext callbackContext) {
+//    try {
+//        if (tiledLayerBaseMap == null) {
+//            tiledLayerBaseMap = new ArcGISTiledLayer(Constant.TILEDLAYERSERVICEURL);
+//            basemap.getBasemap().getBaseLayers().add(0, tiledLayerBaseMap);
+//        }
+//        if ("light".equals(themeState)) {
+//            tiledLayerBaseMap.setVisible(visible);
+//        } else {
+//            nightTiledLayerBaseMap.setVisible(visible);
+//        }
+//        if (callbackContext != null) {
+//            callbackContext.success("success");
+//        }
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//        Log.e(TAG, "changeTieldLayerVisible");
+//    }
+//}
+
+/**
+ * 控制航道图显示与隐藏
+ *
+ * @param visible
+ * @param callbackContext
+ */
+//public void changeChartLayerVisible(Boolean visible, CallbackContext callbackContext) {
+//    try {
+//        if ("light".equals(themeState)) {
+//            if (vectorTiledLayer != null) {
+//                vectorTiledLayer.setVisible(visible);
+//            }
+//        } else {
+//            if (nightVectorTiledLayer != null) {
+//                nightVectorTiledLayer.setVisible(visible);
+//            }
+//        }
+//        if (labelMapImageLayer != null) {
+//            labelMapImageLayer.setVisible(visible);
+//        }
+//        if (callbackContext != null) {
+//            callbackContext.success("success");
+//        }
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//    }
+//}
+
+/**
+ * 控制图幅图层的显示与隐藏
+ *
+ * @param visible boolean
+ */
+//public void changeFramesServerState(Boolean visible) {
+//    try {
+//        if (mMapImageLayer == null) return;
+//        mMapImageLayer.setVisible(visible);
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//    }
+//}
 @end
 
 

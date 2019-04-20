@@ -76,6 +76,7 @@ double curPointY = 0.0;
 
 
 
+//@interface ViewController : UIViewController <AGSMapViewTouchDelegate>
 
 
 // arcgis ios 原生实现类
@@ -100,43 +101,136 @@ double curPointY = 0.0;
  地图初始化
  */
 - (void)initMap{
-    mapSpatialReference = [AGSSpatialReference WGS84];
+    mapSpatialReference = [AGSSpatialReference WGS84];//全局空间参考
+    CGSize viewportSize = [UIApplication sharedApplication].delegate.window.bounds.size;//屏幕大小
+    self.mapView= [[AGSMapView alloc] initWithFrame: CGRectMake(0, 0, viewportSize.width, viewportSize.height)];// 新建mapview
     
-    // 屏幕大小
-    CGSize viewportSize = [UIApplication sharedApplication].delegate.window.bounds.size;
-
-    // 新建mapview
-    self.mapView= [[AGSMapView alloc] initWithFrame: CGRectMake(0, 0, viewportSize.width, viewportSize.height)];
-    // 新建basemap
-    //self.basemap = [[AGSMap alloc] initWithBasemap:[AGSBasemap topographicBasemap]];
-    //self.mapView.map = self.basemap;
+    self.mapView.touchDelegate = self;
     
-    
-    
-    //test start
     tiledLayerBaseMap = [[AGSArcGISTiledLayer alloc] initWithURL:[NSURL URLWithString:TILEDLAYERSERVICEURL]];
-    [tiledLayerBaseMap onLoadStatusChanged];
     [tiledLayerBaseMap setName:@""];
     
-    
     self.basemap = [[AGSMap alloc] initWithBasemap:[[AGSBasemap alloc] initWithBaseLayer:tiledLayerBaseMap]];
-    
-
-    
-    
     self.mapView.map = self.basemap;
     
-    AGSArcGISVectorTiledLayer *vectorLayer = [[AGSArcGISVectorTiledLayer alloc] initWithURL:[NSURL URLWithString:PATHDAYTIME]];
-    [vectorLayer setName:@"basemap"];
+    vectorTiledLayer = [[AGSArcGISVectorTiledLayer alloc] initWithURL:[NSURL URLWithString:PATHDAYTIME]];
+    [vectorTiledLayer setName:@"basemap"];
+    [self.mapView.map.basemap.baseLayers insertObject:vectorTiledLayer atIndex:1];
+    
+    vectorTargetLayer = [[AGSArcGISVectorTiledLayer alloc] initWithURL:[NSURL URLWithString:PATHTARGET]];
+    [vectorTargetLayer setName:@"target"];
+    [self.mapView.map.basemap.baseLayers insertObject:vectorTargetLayer atIndex:2];
     
     
+    mMapImageLayer = [[AGSArcGISMapImageLayer alloc] initWithURL:[NSURL URLWithString:FRAMESSERVERPATH]];
+    //[mMapImageLayer setVisible:false];
+    [self.mapView.map.basemap.baseLayers insertObject:mMapImageLayer atIndex:3];
+    //[self.mapView.map.operationalLayers insertObject:mMapImageLayer atIndex:0];
     
+    labelMapImageLayer = [[AGSArcGISMapImageLayer alloc] initWithURL:[NSURL URLWithString:PATHLABEL]];
+    [labelMapImageLayer setVisible:false];
+    [labelMapImageLayer setMinScale:layerMinScale];
+    [self.mapView.map.basemap.baseLayers insertObject:labelMapImageLayer atIndex:4];
     
-    //test end
+    beaconMapImageLayer = [[AGSArcGISMapImageLayer alloc] initWithURL:[NSURL URLWithString:TARGETINFOSERVICEURL]];
+    [beaconMapImageLayer setOpacity:0.01f];
+    [beaconMapImageLayer setMinScale:32500];
+    [self.mapView.map.basemap.baseLayers insertObject:beaconMapImageLayer atIndex:5];
     
+    airworthinessOverlay = [[AGSGraphicsOverlay alloc] init];//适航水深
+    [airworthinessOverlay setMinScale:50000];
+    [airworthinessOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:airworthinessOverlay atIndex:0];
     
+    maskOverlay = [[AGSGraphicsOverlay alloc] init];
+    [maskOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:maskOverlay atIndex:1];
+
+    planGuideLayer = [[AGSGraphicsOverlay alloc] init];
+    [self.mapView.graphicsOverlays insertObject:planGuideLayer atIndex:2 ];
+
+    cutRouteGraphicLayer = [[AGSGraphicsOverlay alloc] init];
+    [self.mapView.graphicsOverlays insertObject:cutRouteGraphicLayer atIndex:3 ];
+
+    selectionOverlay = [[AGSGraphicsOverlay alloc] init];//选中图层
+    [selectionOverlay setMinScale:layerMinScale];
+    [self.mapView.graphicsOverlays insertObject:selectionOverlay atIndex:4];
     
-    
+    navigationOverlay = [[AGSGraphicsOverlay alloc] init];//航标要素图层
+    [navigationOverlay setMinScale:layerMinScale];
+    [navigationOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:navigationOverlay atIndex:5];
+
+    waterStationOverlay = [[AGSGraphicsOverlay alloc] init];//水位站要素图层
+    [waterStationOverlay setMinScale:layerMinScale];
+    [waterStationOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:waterStationOverlay atIndex:6];
+
+    shipOverlay = [[AGSGraphicsOverlay alloc] init];//船舶要素图层
+    [shipOverlay setMinScale:layerMinScale];
+    [shipOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:shipOverlay atIndex:7];
+
+    reportOverlay = [[AGSGraphicsOverlay alloc] init];//上报要素图层
+    [reportOverlay setMinScale:layerMinScale];
+    [reportOverlay setVisible:true];
+    [self.mapView.graphicsOverlays insertObject:reportOverlay atIndex:8];
+
+    regulationBuildOverlay = [[AGSGraphicsOverlay alloc] init];//整治建筑物要素图层
+    [regulationBuildOverlay setMinScale:layerMinScale];
+    [regulationBuildOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:regulationBuildOverlay atIndex:9];
+
+    waterDepthOverlay = [[AGSGraphicsOverlay alloc] init];//测水要素图层
+    [self.mapView.graphicsOverlays insertObject:waterDepthOverlay atIndex:10];
+
+    markOverlay = [[AGSGraphicsOverlay alloc] init];//标注要素图层
+    [markOverlay setMinScale:layerMinScale];
+    [markOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:markOverlay atIndex:11];
+
+    routeGraphicsOverlay = [[AGSGraphicsOverlay alloc] init];//路径规划线路图层
+    [self.mapView.graphicsOverlays insertObject:routeGraphicsOverlay atIndex:12];
+
+    afterGraphicsOverlay = [[AGSGraphicsOverlay alloc] init];//已驶过线路图层
+    [self.mapView.graphicsOverlays insertObject:afterGraphicsOverlay atIndex:13];
+
+    guideGraphicsOverlay = [[AGSGraphicsOverlay alloc] init];//助航重点连线绘制图层
+    [self.mapView.graphicsOverlays insertObject:guideGraphicsOverlay atIndex:14];
+
+    mGraphicsOverlay = [[AGSGraphicsOverlay alloc] init];//路径规划图标图层
+    [self.mapView.graphicsOverlays insertObject:mGraphicsOverlay atIndex:15];
+
+    weatherOverlay = [[AGSGraphicsOverlay alloc] init];//天气图层
+    //[weatherOverlay setMinScale:layerMinScale];
+    [weatherOverlay setVisible:false];
+    [self.mapView.graphicsOverlays insertObject:weatherOverlay atIndex:16];
+
+    sheetOverlay = [[AGSGraphicsOverlay alloc] init];
+    [sheetOverlay setMinScale:layerMinScale];
+    [self.mapView.graphicsOverlays insertObject:sheetOverlay atIndex:17];
+
+    //助航
+    guideModelGraphicLayer = [[AGSGraphicsOverlay alloc] init];
+    [self.mapView.graphicsOverlays insertObject:guideModelGraphicLayer atIndex:18];
+
+    guideAngleGraphicLayer = [[AGSGraphicsOverlay alloc] init];
+    [self.mapView.graphicsOverlays insertObject:guideAngleGraphicLayer atIndex:19];
+
+    mRouteSymbol = [[AGSSimpleLineSymbol alloc] initWithStyle:AGSSimpleLineSymbolStyleSolid color:[UIColor colorWithRed:34 green:139 blue:34 alpha:1.0] width:9.0];
+
+    //UIImage *image = [UIImage imageWithContentsOfFile: @"www/static/image/symbol/navigation_my_position.png"];
+    guideModelPictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:@"www/static/image/symbol/navigation_my_position.png"]];
+    [guideModelPictureSymbol loadWithCompletion:^(NSError * _Nullable error) {
+        [guideModelPictureSymbol setHeight:50];
+        [guideModelPictureSymbol setWidth:50];
+        guideAnglePictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:@"www/static/image/symbol/navigation_direction.png"]];
+        [guideAnglePictureSymbol loadWithCompletion:^(NSError * _Nullable error) {
+            [guideAnglePictureSymbol setHeight:70];
+            [guideAnglePictureSymbol setWidth:70];
+        }];
+    }];
+
    
     //网格
     AGSBackgroundGrid* grid=[AGSBackgroundGrid new];
@@ -146,14 +240,7 @@ double curPointY = 0.0;
     [self.mapView setBackgroundGrid:grid];
     [self.mapView setAttributionTextVisible:false];
     
-    
-    
-    
-    
-    
-    
     //[self.mapView setViewpoint:[[AGSViewpoint alloc] initWithCenter:[[AGSPoint alloc] initWithX:113.596 y:22.92 spatialReference:mapSpatialReference] scale:32500]];//设置地图中心点
-    //self.mapView setTouchDelegate:(id<AGSGeoViewTouchDelegate> _Nullable)
 }
 
 
@@ -401,6 +488,11 @@ double curPointY = 0.0;
     NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
     [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+}
+
+- (void)mapView:(AGSMapView *)mapView didTapAtPoint:(CGPoint)screen mapPoint:(nonnull
+                                                                              AGSPoint *)mappoint features:(NSDictionary *)features {
+    NSLog(@"User tapped on the map at %f,%f", mappoint.x, mappoint.y);
 }
 @end
 

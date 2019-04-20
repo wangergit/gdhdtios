@@ -1,7 +1,7 @@
 #import <Cordova/CDVPlugin.h>
 #import <UIKit/UIKit.h>
 #import <ArcGIS/ArcGIS.h>
-@interface ArcgisMapView : CDVPlugin
+@interface ArcgisMapView :CDVPlugin 
 
 /**
  地图view变量

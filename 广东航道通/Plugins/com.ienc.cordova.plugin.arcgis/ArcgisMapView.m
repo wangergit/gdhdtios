@@ -74,10 +74,7 @@ int isMapCount = 0;
 double curPointX = 0.0;
 double curPointY = 0.0;
 
-
-
 //@interface ViewController : UIViewController <AGSMapViewTouchDelegate>
-
 
 // arcgis ios 原生实现类
 @implementation ArcgisMapView
@@ -105,7 +102,7 @@ double curPointY = 0.0;
     CGSize viewportSize = [UIApplication sharedApplication].delegate.window.bounds.size;//屏幕大小
     self.mapView= [[AGSMapView alloc] initWithFrame: CGRectMake(0, 0, viewportSize.width, viewportSize.height)];// 新建mapview
     
-    self.mapView.touchDelegate = self;
+    //self.mapView.touchDelegate = self;
     
     tiledLayerBaseMap = [[AGSArcGISTiledLayer alloc] initWithURL:[NSURL URLWithString:TILEDLAYERSERVICEURL]];
     [tiledLayerBaseMap setName:@""];
@@ -230,23 +227,19 @@ double curPointY = 0.0;
             [guideAnglePictureSymbol setWidth:70];
         }];
     }];
-
-   
+    
     //网格
     AGSBackgroundGrid* grid=[AGSBackgroundGrid new];
     grid.color=[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1];
     grid.gridLineColor=[ArcgisMapView colorWithRGB:0x000000 alpha:0];
-    
     [self.mapView setBackgroundGrid:grid];
     [self.mapView setAttributionTextVisible:false];
-    
     //[self.mapView setViewpoint:[[AGSViewpoint alloc] initWithCenter:[[AGSPoint alloc] initWithX:113.596 y:22.92 spatialReference:mapSpatialReference] scale:32500]];//设置地图中心点
 }
 
 
 /**
  十六进制数值转换为UIColor
-
  @param hex 十六进制数值转
  @param alpha 透明度
  @return <#return value description#>
@@ -260,7 +253,6 @@ double curPointY = 0.0;
     g = hex & 0x0000FF;
     hex = hex >> 8;
     r = hex;
-    
     return [UIColor colorWithRed:r/255.0f
                            green:g/255.0f
                             blue:b/255.0f
@@ -282,12 +274,10 @@ double curPointY = 0.0;
 
 /**
  地图重新加载
- 
  @param command command description
  */
 - (void)reload:(CDVInvokedUrlCommand*)command
 {
-   
     [self.basemap retryLoadWithCompletion:^(NSError * _Nullable error) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:error ==NULL?CDVCommandStatus_OK:CDVCommandStatus_ERROR ];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -296,7 +286,6 @@ double curPointY = 0.0;
 
 /**
  获取放缩
- 
  @param command command description
  */
 - (void)getScale:(CDVInvokedUrlCommand*)command
@@ -313,7 +302,6 @@ double curPointY = 0.0;
 {
     @try{
         NSString* scale=[command.arguments objectAtIndex:0];
-        
         [self.mapView setViewpointScale:[scale doubleValue] completion:false];
     } @catch (NSException *exception) {}
     
@@ -336,7 +324,6 @@ double curPointY = 0.0;
 
 /**
  缩大
- 
  @param command command description
  */
 - (void)zoomOut:(CDVInvokedUrlCommand*)command
@@ -377,7 +364,6 @@ double curPointY = 0.0;
         // not calling error callback here to maintain backward compatibility
       }
     }
-
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:version];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
@@ -411,7 +397,6 @@ double curPointY = 0.0;
  */
 -(void) centerTo:(double) x :(double) y :(double) scale :(Boolean) selection :(CDVInvokedUrlCommand*)command{
     NSString * callbackId = command.callbackId;
-    
     //判断当前坐标是否在视图范围
     //Envelope extent = mapView.getVisibleArea().getExtent();
     AGSEnvelope *extent = [tiledLayerBaseMap fullExtent];
@@ -475,8 +460,6 @@ double curPointY = 0.0;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
     } @catch (NSException *exception) {
-        
-    } @finally {
         
     }
 }
@@ -587,6 +570,7 @@ double curPointY = 0.0;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
     } @catch(NSException *exception){
+        NSLog(@"changeTheme  ERROR!");
         NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
@@ -595,91 +579,100 @@ double curPointY = 0.0;
 
 /**
  * 获取矢量切片的index
- *
  * @return
  */
 -(int) getVectorTiledLayerIndex{
     @try {
         for (int i = 0; i < self.mapView.map.basemap.baseLayers.count ; i++) {
-            //[self.mapView.map.basemap.baseLay];
             AGSLayer *layer = [self.mapView.map.basemap.baseLayers objectAtIndex:i];
             if ([layer.name rangeOfString:@"basemap"].length > 0) {
                 return i;
             }
         }
     } @catch (NSException *exception){
-        
+        NSLog(@"getVectorTiledLayerIndex  ERROR!");
     }
     return 1;
 }
 
 /**
  * 控制在线陆地图层显示与隐藏
- *
  * @param visible
  * @param callbackContext
  */
-//public void changeTieldLayerVisible(Boolean visible, CallbackContext callbackContext) {
-//    try {
-//        if (tiledLayerBaseMap == null) {
-//            tiledLayerBaseMap = new ArcGISTiledLayer(Constant.TILEDLAYERSERVICEURL);
-//            basemap.getBasemap().getBaseLayers().add(0, tiledLayerBaseMap);
-//        }
-//        if ("light".equals(themeState)) {
-//            tiledLayerBaseMap.setVisible(visible);
-//        } else {
-//            nightTiledLayerBaseMap.setVisible(visible);
-//        }
-//        if (callbackContext != null) {
-//            callbackContext.success("success");
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//        Log.e(TAG, "changeTieldLayerVisible");
-//    }
-//}
+-(void) changeTieldLayerVisible:(CDVInvokedUrlCommand*)command {
+    @try {
+        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        if (tiledLayerBaseMap == NULL) {
+            tiledLayerBaseMap = [[AGSArcGISTiledLayer alloc] initWithURL:[NSURL URLWithString:TILEDLAYERSERVICEURL]];
+            [self.mapView.map.basemap.baseLayers insertObject:tiledLayerBaseMap atIndex:0];
+        }
+        if ([themeState isEqualToString:@"light"]) {
+            [tiledLayerBaseMap setVisible:visible];
+        } else {
+            [nightTiledLayerBaseMap setVisible:visible];
+        }
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeTieldLayerVisible OK"];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    } @catch (NSException *exception) {
+        NSLog(@"changeTieldLayerVisible  ERROR!");
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    }
+}
 
 /**
  * 控制航道图显示与隐藏
- *
  * @param visible
  * @param callbackContext
  */
-//public void changeChartLayerVisible(Boolean visible, CallbackContext callbackContext) {
-//    try {
-//        if ("light".equals(themeState)) {
-//            if (vectorTiledLayer != null) {
-//                vectorTiledLayer.setVisible(visible);
-//            }
-//        } else {
-//            if (nightVectorTiledLayer != null) {
-//                nightVectorTiledLayer.setVisible(visible);
-//            }
-//        }
-//        if (labelMapImageLayer != null) {
-//            labelMapImageLayer.setVisible(visible);
-//        }
-//        if (callbackContext != null) {
-//            callbackContext.success("success");
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//}
+-(void) changeChartLayerVisible:(CDVInvokedUrlCommand*)command {
+    @try {
+        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        if ([themeState isEqualToString:@"light"]) {
+            if (vectorTiledLayer != NULL) {
+                [vectorTiledLayer setVisible:visible];
+            }
+        } else {
+            if (nightVectorTiledLayer != NULL) {
+                [nightVectorTiledLayer setVisible:visible];
+            }
+        }
+        if (labelMapImageLayer != NULL) {
+            [labelMapImageLayer setVisible:visible];
+        }
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeChartLayerVisible OK"];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    } @catch (NSException *exception) {
+        NSLog(@"changeChartLayerVisible  ERROR!");
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"changeChartLayerVisible  ERROR"];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    }
+}
 
 /**
  * 控制图幅图层的显示与隐藏
- *
  * @param visible boolean
  */
-//public void changeFramesServerState(Boolean visible) {
-//    try {
-//        if (mMapImageLayer == null) return;
-//        mMapImageLayer.setVisible(visible);
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//}
+-(void) changeFramesServerState:(CDVInvokedUrlCommand*)command {
+    @try {
+        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        if (mMapImageLayer == NULL) return;
+        [mMapImageLayer setVisible:visible];
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeFramesServerState OK"];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    } @catch (NSException *exception)  {
+        NSLog(@"changeFramesServerState  ERROR!");
+        NSString * callbackId = command.callbackId;
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    }
+}
 @end
 
 

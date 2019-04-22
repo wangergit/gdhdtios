@@ -595,7 +595,7 @@
         if ([self.themeState isEqualToString:@"light"]) {
             if (self.vectorTiledLayer != NULL) {
                 [self.vectorTiledLayer setVisible:visible];
-            }
+            }  
         } else {
             if (self.nightVectorTiledLayer != NULL) {
                 [self.nightVectorTiledLayer setVisible:visible];

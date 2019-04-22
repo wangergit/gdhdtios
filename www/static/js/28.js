@@ -1,13 +1,6 @@
 webpackJsonp([28],{
 
-/***/ "/zaq":
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ "nyNS":
+/***/ "8rkz":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20,73 +13,25 @@ var toConsumableArray_default = /*#__PURE__*/__webpack_require__.n(toConsumableA
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./src/base/shelter/index.js + 3 modules
-var shelter = __webpack_require__("ACuM");
+// EXTERNAL MODULE: ./src/api/personal.js
+var personal = __webpack_require__("YkBq");
 
-// EXTERNAL MODULE: ./node_modules/vant/lib/image-preview/index.js
-var image_preview = __webpack_require__("Mqtp");
-var image_preview_default = /*#__PURE__*/__webpack_require__.n(image_preview);
+// EXTERNAL MODULE: ./src/base/no-success/no-success.vue + 2 modules
+var no_success = __webpack_require__("vdH4");
 
-// EXTERNAL MODULE: ./node_modules/vant/lib/image-preview/style/index.js
-var style = __webpack_require__("i9vB");
+// EXTERNAL MODULE: ./node_modules/vant/lib/swipe-cell/index.js
+var swipe_cell = __webpack_require__("BTmN");
+var swipe_cell_default = /*#__PURE__*/__webpack_require__.n(swipe_cell);
+
+// EXTERNAL MODULE: ./node_modules/vant/lib/swipe-cell/style/index.js
+var style = __webpack_require__("9xn2");
 var style_default = /*#__PURE__*/__webpack_require__.n(style);
 
-// EXTERNAL MODULE: ./src/api/dynamic.js
-var dynamic = __webpack_require__("IGLS");
+// EXTERNAL MODULE: ./src/common/js/mixins/index.js
+var mixins = __webpack_require__("HOuZ");
 
-// EXTERNAL MODULE: ./src/components/no-success/no-success.vue + 2 modules
-var no_success = __webpack_require__("amha");
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/address/index.vue
 
-// EXTERNAL MODULE: ./src/types/index.js + 3 modules
-var types = __webpack_require__("NaSR");
-
-// EXTERNAL MODULE: ./src/common/mixins/index.js + 9 modules
-var mixins = __webpack_require__("gDrV");
-
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/dynamic/index.vue
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -129,261 +74,145 @@ var mixins = __webpack_require__("gDrV");
 
 
 
-
-
-/* harmony default export */ var views_dynamic = ({
-    name: "dynamicList",
-    mixins: [mixins["i" /* userMixins */]],
+/* harmony default export */ var address = ({
+    name: "common-address",
+    mixins: [mixins["a" /* MapMixins */]],
     data: function data() {
         return {
-            open: false,
-            refreshing: false,
+            /***
+             * 上拉刷新&下拉加载
+             */
+            refresh: false,
             loading: false,
+            /***
+             * 常用地址 列表
+             */
+            list: [],
+            /***
+             * 请求数据
+             */
             params: {
                 pageNumber: 0,
-                pageSize: 15
-            },
-            list: []
+                pageSize: 20
+            }
         };
     },
-
-    computed: {
-        type: function type() {
-            var type = this.$route.query.dynamic_type;
-
-            switch (type) {
-                case 'all':
-                    return '全部';
-                case 'fabulous':
-                    return '已赞';
-                case 'message':
-                    return '已留言';
-                default:
-                    return '全部';
-            }
-        }
-    },
     activated: function activated() {
-        this.refresh();
+        this.queryIAddress();
     },
 
     methods: {
-        // 刷新
-        refresh: function refresh() {
-            this.refreshing = true;
-            this.$refs.container.scrollTop = 0;
-
-            this.getList();
-        },
-
-        // 点击选项
-        handlerItem: function handlerItem(index, item) {
-            this.$router.push({
-                name: 'dynamic-detail',
-                params: {
-                    id: item.id,
-                    portrait: item.portrait,
-                    alias: item.alias,
-                    content: item.content,
-                    images: item.images,
-                    isFabulous: item.ifab,
-                    index: index
-                }
-            });
-        },
-
-        // 切换类型
-        handlerToggle: function handlerToggle() {
-            this.open = true;
-        },
-
-        // 切换列表
-        handlerToggleList: function handlerToggleList(type) {
-            this.$router.replace({
-                name: 'dynamic',
-                query: {
-                    dynamic_type: type
-                }
-            });
-
-            this.open = false;
-        },
-
-        // 格式化图片样式
-        handlerPicture: function handlerPicture(images) {
-            return images.length > 4 ? 'picture-max' : 'picture-' + images.length;
-        },
-
-        // 点击图片，弹出图片查看器
-        onClickPicture: function onClickPicture(images, index) {
-            image_preview_default()({
-                images: images,
-                startPosition: index
-            });
-        },
-
-        // 加载更多
-        load: function load() {
+        /***
+         * 搜索常用地址
+         */
+        queryIAddress: function queryIAddress() {
             var _this = this;
 
-            this.loading = true;
+            this.params.pageNumber = 0;
 
-            this.params.pageNumber++;
-
-            if (this.type === '全部') {
-                Object(dynamic["b" /* queryCircleMessageList */])(this.params).then(function (res) {
-                    var _list;
-
-                    (_list = _this.list).push.apply(_list, toConsumableArray_default()(Object(types["d" /* isArray */])(res).map(function (item) {
-                        if (item.mediaPath) {
-                            item.images = item.mediaPath.split(';').map(function (item) {
-                                return _this.$images + item;
-                            });
-                        }
-
-                        return item;
-                    })));
-
-                    _this.loading = false;
-                });
-            }
-            if (this.type === '已赞') {
-                Object(dynamic["d" /* queryCircleMessageListBeFabulousByUserId */])(this.params).then(function (res) {
-                    var _list2;
-
-                    (_list2 = _this.list).push.apply(_list2, toConsumableArray_default()(Object(types["d" /* isArray */])(res).map(function (item) {
-                        if (item.mediaPath) {
-                            item.images = item.mediaPath.split(';').map(function (item) {
-                                return _this.$images + item;
-                            });
-                        }
-                        return item;
-                    })));
-
-                    _this.loading = false;
-                });
-            }
-            if (this.type === '已留言') {
-                Object(dynamic["c" /* queryCircleMessageListBeCommentByUserId */])(this.params).then(function (res) {
-                    var _list3;
-
-                    (_list3 = _this.list).push.apply(_list3, toConsumableArray_default()(Object(types["d" /* isArray */])(res).map(function (item) {
-                        if (item.mediaPath) {
-                            item.images = item.mediaPath.split(';').map(function (item) {
-                                return _this.$images + item;
-                            });
-                        }
-                        return item;
-                    })));
-
-                    _this.loading = false;
-                });
-            }
+            Object(personal["h" /* queryIAddress */])(this.params).then(function (res) {
+                _this.list = res.content;
+                _this.refresh = false;
+            });
         },
 
-        // 获取列表
-        getList: function getList() {
-            if (this.type === '全部') {
-                this.queryCircleMessageList();
-            }
-            if (this.type === '已赞') {
-                this.queryMyFabulousList();
-            }
-            if (this.type === '已留言') {
-                this.queryMyCommentList();
-            }
-        },
-        queryCircleMessageList: function queryCircleMessageList() {
+        /***
+         * 删除常用地址
+         * @param item    => 删除对象
+         * @param index   => 索引
+         */
+        handlerDelete: function handlerDelete(item, index) {
             var _this2 = this;
 
-            this.params.pageNumber = 0;
-
-            Object(dynamic["b" /* queryCircleMessageList */])(this.params).then(function (res) {
-                _this2.list = res;
-
-                // 格式化图片列表
-                _this2.list.map(function (item) {
-                    if (item.mediaPath) {
-                        item.images = item.mediaPath.split(';').map(function (item) {
-                            return _this2.$images + item;
-                        });
-                    }
-                    return item;
-                });
-
-                _this2.loading = false;
-                _this2.refreshing = false;
+            Object(personal["a" /* deleteIAddress */])(item.id).then(function (res) {
+                _this2.$toast('删除成功');
+                _this2.list.splice(index, 1);
             });
         },
-        queryMyFabulousList: function queryMyFabulousList() {
+
+        /***
+         * 下拉刷新
+         */
+        onRefresh: function onRefresh() {
+            this.refresh = true;
+            this.$refs.scrollWrapper.scrollTop = 0;
+
+            this.queryIAddress();
+        },
+
+        /***
+         * 下拉加载
+         */
+        onLoad: function onLoad() {
             var _this3 = this;
 
-            this.params.pageNumber = 0;
+            this.loading = true;
+            this.params.pageNumber++;
 
-            Object(dynamic["d" /* queryCircleMessageListBeFabulousByUserId */])(this.params).then(function (res) {
-                _this3.list = Object(types["d" /* isArray */])(res).map(function (item) {
-                    if (item.mediaPath) {
-                        item.images = item.mediaPath.split(';').map(function (item) {
-                            return _this3.$images + item;
-                        });
-                    }
-                    return item;
-                });
+            Object(personal["h" /* queryIAddress */])(this.params).then(function (res) {
+                var _list;
 
-                _this3.refreshing = false;
+                if (res.content.length) (_list = _this3.list).push.apply(_list, toConsumableArray_default()(res.content));else _this3.params.pageNumber--;
+
+                _this3.loading = false;
             });
         },
-        queryMyCommentList: function queryMyCommentList() {
+
+        /***
+         * 定位
+         * @param item   =>  定位对象
+         */
+        handlerLocation: function handlerLocation(item) {
             var _this4 = this;
 
-            this.params.pageNumber = 0;
-
-            Object(dynamic["c" /* queryCircleMessageListBeCommentByUserId */])(this.params).then(function (res) {
-                _this4.list = res.map(function (item) {
-                    if (item.mediaPath) {
-                        item.images = item.mediaPath.split(';').map(function (item) {
-                            return _this4.$images + item;
-                        });
-                    }
-                    return item;
-                });
-
-                _this4.refreshing = false;
+            this.$toast({
+                message: '定位中 ...',
+                duration: 3000,
+                forbidClick: true
             });
-        }
-    },
-    watch: {
-        open: function open(value) {
-            var _this5 = this;
 
-            if (value) {
-                shelter["a" /* default */].show({
-                    onClose: function onClose() {
-                        _this5.open = false;
-                    },
-                    element: this.$el
-                });
-            } else {
-                shelter["a" /* default */].close();
-            }
+            /***
+             * 设置地图中心点
+             */
+            this.setCenter(item.longitude, item.latitude).then(function (res) {
+                _this4.$toast('定位成功');
+
+                // 定位成功后跳转至图层页
+                _this4.$router.push('/');
+            }).catch(function (err) {
+                _this4.$toast('定位失败');
+            });
         },
-        type: function type() {
-            this.getList();
+
+        /***
+         * 修改&新增常用地址
+         */
+        saveAddress: function saveAddress() {
+            this.$router.push({
+                name: 'selection-cl'
+            });
+        },
+        handlerItem: function handlerItem(item) {
+            // this.$router.push(`/detail/${item.typeId}/${item.id}`)
+        },
+        handlerSave: function handlerSave() {
+            this.onRefresh();
         }
     },
     components: {
         NoSuccess: no_success["a" /* default */],
-        Navigate: navigate_navigate["a" /* default */]
+        Navigate: navigate_navigate["a" /* default */],
+        SwipeCell: swipe_cell_default.a
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-812970dc","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/dynamic/index.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"dynamic"},[_c('mu-appbar',{staticClass:"appbar",style:({zIndex: _vm.open ? 8000 : 1})},[_c('mu-button',{attrs:{"slot":"left","color":"#fff","icon":""},on:{"click":function($event){_vm.$router.back()}},slot:"left"},[_c('mu-icon',{attrs:{"value":"navigate_before"}})],1),_vm._v(" "),_c('mu-button',{attrs:{"color":"#fff","flat":""},on:{"click":_vm.handlerToggle}},[_c('span',[_vm._v(_vm._s(_vm.type))]),_vm._v(" "),_c('mu-icon',{attrs:{"value":"arrow_drop_down"}})],1),_vm._v(" "),_c('mu-button',{attrs:{"slot":"right","color":"#fff","icon":""},on:{"click":function($event){_vm.$router.push('/dynamic/type')}},slot:"right"},[_c('mu-icon',{attrs:{"value":"add"}})],1)],1),_vm._v(" "),_c('div',{ref:"container",staticClass:"scroll-wrapper"},[_c('mu-load-more',{attrs:{"refreshing":_vm.refreshing,"loading":_vm.loading},on:{"refresh":_vm.refresh,"load":_vm.load}},[_vm._l((_vm.list),function(item,index){return _c('div',{key:item.id,staticClass:"list-item",on:{"click":function($event){_vm.handlerItem(index, item)}}},[_c('div',{staticClass:"source"},[_c('mu-avatar',{attrs:{"size":"50"}},[_c('img',{directives:[{name:"lazy",rawName:"v-lazy",value:(_vm.AvatarImage(_vm.$images + item.portrait, item.alias)),expression:"AvatarImage($images + item.portrait, item.alias)"}]})]),_vm._v(" "),_c('div',{staticClass:"info"},[_c('div',{staticClass:"nickname"},[_vm._v(_vm._s(item.alias))]),_vm._v(" "),_c('div',{staticClass:"time"},[_vm._v(_vm._s(item.createTime))])])],1),_vm._v(" "),_c('div',{staticClass:"msg",domProps:{"innerHTML":_vm._s(item.content)}},[_vm._v(_vm._s(item.content))]),_vm._v(" "),(item.images)?_c('div',{ref:"images",refInFor:true,staticClass:"picture-box"},_vm._l((item.images),function(image,index){return (image)?_c('div',{directives:[{name:"lazy",rawName:"v-lazy:background-image.container",value:(image),expression:"image",arg:"background-image",modifiers:{"container":true}}],staticClass:"picture border-1px",class:_vm.handlerPicture(item.images),on:{"click":function($event){$event.stopPropagation();_vm.onClickPicture(item.images, index)}}}):_vm._e()})):_vm._e(),_vm._v(" "),_c('div',{staticClass:"interact"},[_c('div',{staticClass:"interact-item"},[_c('mu-icon',{attrs:{"size":"16","value":"thumb_up","color":"#3899D7"}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(!item.fnum ? '0' : item.fnum))])],1),_vm._v(" "),_c('div',{staticClass:"interact-item last"},[_c('mu-icon',{attrs:{"size":"16","value":"sms","color":"#3899D7"}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(!item.cnum ? '0' : item.cnum))])],1)])])}),_vm._v(" "),(!_vm.list.length)?_c('no-success',{attrs:{"text":"没有查询到您需要的数据","height":"90vh"}}):_vm._e()],2)],1),_vm._v(" "),_c('transition',{attrs:{"name":"views-left"}},[_c('keep-alive',[_c('router-view',{staticClass:"views",on:{"refresh":_vm.refresh}})],1)],1),_vm._v(" "),_c('mu-popover',{staticClass:"dynamic-popover",attrs:{"open":_vm.open},on:{"update:open":function($event){_vm.open=$event}}},[_c('div',{staticClass:"list"},[_c('div',{staticClass:"item border-1px-b",on:{"click":function($event){_vm.handlerToggleList('all')}}},[_vm._v("全部")]),_vm._v(" "),_c('div',{staticClass:"item border-1px-b",on:{"click":function($event){_vm.handlerToggleList('fabulous')}}},[_vm._v("已赞")]),_vm._v(" "),_c('div',{staticClass:"item border-1px-b",on:{"click":function($event){_vm.handlerToggleList('message')}}},[_vm._v("已留言")])])])],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-dc816eac","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/address/index.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"common-address"},[_c('navigate',{attrs:{"title":"常用地址","position":"absolute"}}),_vm._v(" "),_c('div',{ref:"scrollWrapper",staticClass:"scroll-wrapper"},[_c('mu-load-more',{attrs:{"refreshing":_vm.refresh,"loading":_vm.loading},on:{"refresh":_vm.onRefresh,"load":_vm.onLoad}},[_c('mu-sub-header',{staticClass:"theme-text-secondary"},[_vm._v("以下信息仅用于为您航线规划、推荐内容等")]),_vm._v(" "),(_vm.list.length)?_c('mu-list',_vm._l((_vm.list),function(item,index){return _c('swipe-cell',{key:index,attrs:{"right-width":88}},[_c('mu-list-item',{staticClass:"border-1px-b",attrs:{"ripple":false,"button":""},nativeOn:{"click":function($event){_vm.handlerItem(item)}}},[_c('mu-list-item-content',[_c('mu-list-item-title',[_vm._v(_vm._s(item.name))]),_vm._v(" "),(item.address)?_c('mu-list-item-sub-title',[_vm._v(_vm._s(item.address))]):_vm._e()],1),_vm._v(" "),_c('mu-list-item-action',[_c('mu-button',{attrs:{"color":"info","flat":""},on:{"click":function($event){_vm.handlerLocation(item)}}},[_vm._v("定位")])],1)],1),_vm._v(" "),_c('mu-button',{staticClass:"h bdrsn delete",attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":function($event){_vm.handlerDelete(item, index)}},slot:"right"},[_vm._v("\n                        删除\n                    ")])],1)})):_c('no-success',{attrs:{"text":"您还没有添加常用地址","height":"75vh"}})],1)],1),_vm._v(" "),_c('div',{staticClass:"common-address-add-button"},[_c('mu-button',{staticClass:"db w background-primary",attrs:{"color":"#fff","flat":""},on:{"click":_vm.saveAddress}},[_vm._v("添加")])],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var selectortype_template_index_0_src_views_dynamic = (esExports);
-// CONCATENATED MODULE: ./src/views/dynamic/index.vue
+/* harmony default export */ var about_address = (esExports);
+// CONCATENATED MODULE: ./src/views/about/address/index.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("/zaq")
+  __webpack_require__("zjdV")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -396,20 +225,27 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-812970dc"
+var __vue_scopeId__ = "data-v-dc816eac"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  views_dynamic,
-  selectortype_template_index_0_src_views_dynamic,
+  address,
+  about_address,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var src_views_dynamic = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var views_about_address = __webpack_exports__["default"] = (Component.exports);
 
+
+/***/ }),
+
+/***/ "zjdV":
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 

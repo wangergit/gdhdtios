@@ -1,25 +1,34 @@
 webpackJsonp([36],{
 
-/***/ "aeNn":
+/***/ "36gj":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
+// EXTERNAL MODULE: ./node_modules/babel-runtime/helpers/toConsumableArray.js
+var toConsumableArray = __webpack_require__("Gu7T");
+var toConsumableArray_default = /*#__PURE__*/__webpack_require__.n(toConsumableArray);
+
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
+
+// EXTERNAL MODULE: ./src/base/no-success/no-success.vue + 2 modules
+var no_success = __webpack_require__("vdH4");
+
+// EXTERNAL MODULE: ./node_modules/vant/lib/swipe-cell/index.js
+var swipe_cell = __webpack_require__("BTmN");
+var swipe_cell_default = /*#__PURE__*/__webpack_require__.n(swipe_cell);
+
+// EXTERNAL MODULE: ./node_modules/vant/lib/swipe-cell/style/index.js
+var style = __webpack_require__("9xn2");
+var style_default = /*#__PURE__*/__webpack_require__.n(style);
 
 // EXTERNAL MODULE: ./src/api/personal.js
 var personal = __webpack_require__("YkBq");
 
-// EXTERNAL MODULE: ./src/common/mixins/index.js + 9 modules
-var mixins = __webpack_require__("gDrV");
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/ship/index.vue
 
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/data/password.vue
-//
-//
-//
-//
 //
 //
 //
@@ -59,112 +68,121 @@ var mixins = __webpack_require__("gDrV");
 
 
 
-/* harmony default export */ var data_password = ({
-    name: 'reset-password',
-    mixins: [mixins["i" /* userMixins */]],
+
+
+/* harmony default export */ var ship = ({
+    name: "myShips",
     data: function data() {
-        var _this = this;
-
         return {
+            /***
+             * 刷新和加载更多
+             */
+            refresh: false,
             loading: false,
-            visibility1: false,
-            visibility2: false,
-            visibility3: false,
             /***
-             * 验证
+             * 我的船舶列表
              */
-            passwordRules1: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写原密码' }, { validate: function validate(val) {
-                    return (/^[a-zA-Z\d]{6,16}$/.test(val)
-                    );
-                }, message: '请输入6-16位密码，不支持特殊符号' }],
-            passwordRules2: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写新密码' }, { validate: function validate(val) {
-                    return (/^[a-zA-Z\d]{6,16}$/.test(val)
-                    );
-                }, message: '请输入6-16位密码，不支持特殊符号' }],
-            passwordRules3: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写确认新密码' }, { validate: function validate(val) {
-                    return (/^[a-zA-Z\d]{6,16}$/.test(val)
-                    );
-                }, message: '请输入6-16位密码，不支持特殊符号' }, { validate: function validate(val) {
-                    return val === _this.form.newPwd;
-                }, message: '两次输入密码不一致' }],
+            list: [],
             /***
-             * 表单内容
-             *      oldPwd: 旧密码
-             *      newPwd: 新密码
+             * 检索信息
              */
-            form: {
-                oldPwd: '',
-                newPwd: '',
-                confirmPwd: ''
+            params: {
+                pageNumber: 0,
+                pageSize: 10
             }
         };
     },
-
-    computed: {
-        /***
-         * 导航栏标题
-         * @return {string}
-         */
-        navigateTitle: function navigateTitle() {
-            return '修改密码';
-        }
-    },
     activated: function activated() {
-        this.$refs.form.clear();
-
-        this.form = {
-            oldPwd: '',
-            newPwd: '',
-            confirmPwd: ''
-        };
+        this.queryIBoatList();
     },
 
     methods: {
         /***
-         * 提交 修改密码
+         * 查看 我的船舶 详情
          */
-        submit: function submit() {
+        handlerMessageItem: function handlerMessageItem(item) {
+            this.$router.push({
+                name: 'about-ship-detail',
+                query: {
+                    typeId: '013001',
+                    hideCollection: true
+                },
+                params: {
+                    type: '013001',
+                    id: item.boat.mmsi
+                }
+            });
+        },
+
+        /***
+         * 获取 我的船舶 列表
+         */
+        queryIBoatList: function queryIBoatList() {
+            var _this = this;
+
+            this.params.pageNumber = 0;
+
+            return Object(personal["i" /* queryIBoatList */])(this.params).then(function (res) {
+                _this.list = res;
+                _this.refresh = false;
+            });
+        },
+
+        /***
+         * 下拉刷新
+         */
+        onRefresh: function onRefresh() {
+            this.refresh = true;
+            this.$refs.scrollWrapper.scrollTop = 0;
+
+            this.queryIBoatList();
+        },
+
+        /***
+         * 上拉加载
+         */
+        onLoad: function onLoad() {
             var _this2 = this;
 
-            this.$refs.form.validate().then(function (result) {
-                if (result) {
-                    _this2.loading = true;
-                    Object(personal["x" /* updateUserPassword */])(_this2.form).then(function (res) {
-                        _this2.loading = false;
+            this.loading = true;
+            this.params.pageNumber++;
 
-                        _this2.$toast('您的密码已更改，请重新登录');
+            Object(personal["i" /* queryIBoatList */])(this.params).then(function (res) {
+                var _list;
 
-                        _this2.logout();
+                (_list = _this2.list).push.apply(_list, toConsumableArray_default()(res));
+                _this2.loading = false;
+            });
+        },
 
-                        _this2.$router.replace('/login');
-                    }).catch(function (err) {
-                        console.log(err);
-                        _this2.loading = false;
-                    });
-                }
+        /***
+         * 删除
+         * @param item  item.id => 收藏 ID
+         * @param index 索引
+         */
+        handlerDelete: function handlerDelete(item, index) {
+            var _this3 = this;
+
+            Object(personal["c" /* deleteIBoatById */])(item.id).then(function (res) {
+                _this3.$toast('删除成功');
+                _this3.list.splice(index, 1);
             });
         }
     },
     components: {
-        Navigate: navigate_navigate["a" /* default */]
+        NoSuccess: no_success["a" /* default */],
+        Navigate: navigate_navigate["a" /* default */],
+        SwipeCell: swipe_cell_default.a
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-3eacda75","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/data/password.vue
-var render = function () {
-var this$1 = this;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"data-editor-password"},[_c('navigate',{attrs:{"title":_vm.navigateTitle,"position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('mu-form',{ref:"form",staticClass:"form",attrs:{"model":_vm.form,"label-position":"left","label-width":"100"}},[_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"oldPwd","label":"原密码","rules":_vm.passwordRules1}},[_c('mu-text-field',{attrs:{"placeholder":"请填写原密码","action-icon":_vm.visibility1 ? 'visibility' : 'visibility_off',"action-click":function () {this$1.visibility1 = !this$1.visibility1},"type":_vm.visibility1 ? 'text' : 'password',"solo":"","full-width":""},model:{value:(_vm.form.oldPwd),callback:function ($$v) {_vm.$set(_vm.form, "oldPwd", $$v)},expression:"form.oldPwd"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"newPwd","label":"新密码","rules":_vm.passwordRules2}},[_c('mu-text-field',{attrs:{"placeholder":"6-20位字母、数字和符号","action-icon":_vm.visibility2 ? 'visibility' : 'visibility_off',"action-click":function () {this$1.visibility2 = !this$1.visibility2},"type":_vm.visibility2 ? 'text' : 'password',"solo":"","full-width":""},model:{value:(_vm.form.newPwd),callback:function ($$v) {_vm.$set(_vm.form, "newPwd", $$v)},expression:"form.newPwd"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"confirmPwd","label":"确认新密码","rules":_vm.passwordRules3}},[_c('mu-text-field',{attrs:{"placeholder":"6-20位字母、数字和符号","action-icon":_vm.visibility3 ? 'visibility' : 'visibility_off',"action-click":function () {this$1.visibility3 = !this$1.visibility3},"type":_vm.visibility3 ? 'text' : 'password',"solo":"","full-width":""},model:{value:(_vm.form.confirmPwd),callback:function ($$v) {_vm.$set(_vm.form, "confirmPwd", $$v)},expression:"form.confirmPwd"}})],1)],1),_vm._v(" "),_c('div',{staticClass:"button-wrapper"},[_c('mu-button',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],staticClass:"button",attrs:{"color":"#fff","data-mu-loading-size":"24","disabled":_vm.loading,"flat":""},on:{"click":_vm.submit}},[_vm._v("提交\n            ")])],1)],1)],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-7fd244ea","hasScoped":false,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/ship/index.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"my-ships"},[_c('navigate',{attrs:{"title":"我的船舶","position":"absolute"}}),_vm._v(" "),_c('div',{ref:"scrollWrapper",staticClass:"scroll-wrapper"},[(_vm.list.length)?_c('mu-load-more',{attrs:{"refreshing":_vm.refresh,"loading":_vm.loading},on:{"refresh":_vm.onRefresh,"load":_vm.onLoad}},[_c('mu-list',{staticClass:"pn"},_vm._l((_vm.list),function(item,index){return _c('swipe-cell',{key:index,class:{'border-1px-b': index < _vm.list.length - 1},attrs:{"right-width":88}},[_c('mu-list-item',{attrs:{"avatar":""},nativeOn:{"click":function($event){_vm.handlerMessageItem(item, index)}}},[_c('mu-list-item-content',[_c('mu-list-item-title',[_vm._v(_vm._s(item.boat.name))]),_vm._v(" "),_c('mu-list-item-sub-title',[_vm._v("MMSI："+_vm._s(item.boat.mmsi))])],1)],1),_vm._v(" "),_c('mu-button',{staticClass:"delete",attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":function($event){_vm.handlerDelete(item, index)}},slot:"right"},[_vm._v("\n                        删除\n                    ")])],1)}))],1):_c('no-success',{attrs:{"text":"您还没有添加任何船舶"}})],1),_vm._v(" "),_c('transition',{attrs:{"name":"views-left"}},[_c('keep-alive',[_c('router-view',{staticClass:"views"})],1)],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var about_data_password = (esExports);
-// CONCATENATED MODULE: ./src/views/about/data/password.vue
+/* harmony default export */ var about_ship = (esExports);
+// CONCATENATED MODULE: ./src/views/about/ship/index.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("eYBu")
+  __webpack_require__("SaXC")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -177,24 +195,24 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-3eacda75"
+var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  data_password,
-  about_data_password,
+  ship,
+  about_ship,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var views_about_data_password = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var views_about_ship = __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ }),
 
-/***/ "eYBu":
+/***/ "SaXC":
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

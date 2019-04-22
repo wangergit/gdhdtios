@@ -1,6 +1,6 @@
 webpackJsonp([26],{
 
-/***/ "NpNM":
+/***/ "sLaN":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9,77 +9,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./node_modules/vant/lib/field/index.js
-var field = __webpack_require__("MyDk");
-var field_default = /*#__PURE__*/__webpack_require__.n(field);
+// EXTERNAL MODULE: ./src/api/sys.js
+var sys = __webpack_require__("DEHg");
 
-// EXTERNAL MODULE: ./node_modules/vant/lib/field/style/index.js
-var style = __webpack_require__("wvM5");
-var style_default = /*#__PURE__*/__webpack_require__.n(style);
+// EXTERNAL MODULE: ./src/common/js/cordova/download.js
+var cordova_download = __webpack_require__("4+bB");
 
-// EXTERNAL MODULE: ./node_modules/vant/lib/image-preview/index.js
-var image_preview = __webpack_require__("Mqtp");
-var image_preview_default = /*#__PURE__*/__webpack_require__.n(image_preview);
-
-// EXTERNAL MODULE: ./node_modules/vant/lib/image-preview/style/index.js
-var image_preview_style = __webpack_require__("i9vB");
-var image_preview_style_default = /*#__PURE__*/__webpack_require__.n(image_preview_style);
-
-// EXTERNAL MODULE: ./src/base/shelter/index.js + 3 modules
-var shelter = __webpack_require__("ACuM");
-
-// EXTERNAL MODULE: ./src/api/dynamic.js
-var dynamic = __webpack_require__("IGLS");
-
-// EXTERNAL MODULE: ./src/common/mixins/index.js + 9 modules
-var mixins = __webpack_require__("gDrV");
-
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/dynamic/detail.vue
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/offline-map/index.vue
 //
 //
 //
@@ -147,233 +83,162 @@ var mixins = __webpack_require__("gDrV");
 
 
 
-
-
-
-
-
-/* harmony default export */ var detail = ({
-    name: "dynamic-detail",
-    mixins: [mixins["i" /* userMixins */]],
+/* harmony default export */ var offline_map = ({
+    name: "offlineMap",
     data: function data() {
         return {
-            visible: true,
-            replyTo: null,
-            content: "",
-            detail: {
-                isFabulous: false
-            },
-            commentList: [],
-            fabulous: [],
             params: {
-                pageNumber: 0,
-                pageSize: 20
+                pageNumber: 1,
+                pageSize: 10
             },
-            loading: {
-                fabulous: false,
-                comment: false
-            }
+            list: []
         };
     },
-
-    props: {
-        id: {
-            type: String,
-            default: ""
-        }
-    },
-    computed: {
-        picture: function picture() {
-            if (this.detail.images) {
-                return this.detail.images.length > 4 ? "picture-max" : "picture-" + this.detail.images.length;
-            }
-
-            return "";
-        },
-        fabulousString: function fabulousString() {
-            return this.fabulous.map(function (item) {
-                return '<span class="fabulous">' + item + '</span>';
-            }).join("、") + "赞过";
-        },
-        placeholder: function placeholder() {
-            return this.replyTo ? '\u56DE\u590D ' + this.replyTo.alias + ': ' : '\u8BC4\u8BBA';
-        }
-    },
     activated: function activated() {
-        this.commentList = [];
-        this.fabulous = [];
-
-        this.detail = this.$route.params;
-
-        this.queryCommentList();
-        this.queryFabulousAll();
-        this.queryCircleMessageWithUF();
+        this.downloadMapList();
+        Object(cordova_download["a" /* downloadFile */])("", "", function (successData) {
+            console.log(successData);
+        }, function (errorData) {
+            console.log(errorData);
+        });
     },
 
     methods: {
-        queryCircleMessageWithUF: function queryCircleMessageWithUF() {
-            Object(dynamic["e" /* queryCircleMessageWithUF */])(this.id).then(function (res) {
-                console.log(res);
-            });
-        },
-
-        // 点击图片，打开图片查看器
-        handlerPicture: function handlerPicture(images, index) {
-            image_preview_default()({ images: images, startPosition: index });
-        },
-
-        /***
-         * 点击发送评论
-         */
-        onSubmit: function onSubmit() {
-            this.saveComment();
-
-            return false;
-        },
-
-        /***
-         * 获取评论列表
-         */
-        queryCommentList: function queryCommentList() {
+        downloadMapList: function downloadMapList() {
             var _this = this;
 
-            this.params.msgId = this.id;
-
-            Object(dynamic["f" /* queryCommentList */])(this.params).then(function (res) {
-                _this.commentList = res;
+            Object(sys["b" /* downloadMapList */])(this.params).then(function (res) {
+                _this.list = res;
             });
         },
-
-        /***
-         * 获取所有点赞人
-         */
-        queryFabulousAll: function queryFabulousAll() {
-            var _this2 = this;
-
-            Object(dynamic["g" /* queryFabulousAll */])({ msgId: this.id }).then(function (res) {
-                _this2.fabulous = res;
-            });
+        handlerDownload: function handlerDownload(item) {
+            switch (item.style) {
+                case 'loading':
+                    this.pause(item);
+                    return;
+                case 'update':
+                    return;
+                default:
+                    this.download(item);
+                    return;
+            }
         },
+        download: function download(item) {
+            if (item.style === "done") {
+                return;
+            }
+            // const url = this.$images + item.file_path
+            if (!item.file_path) {
+                return this.$toast('无效下载地址');
+            }
 
-        // 点击更多
-        handlerMoreOpen: function handlerMoreOpen() {
-            shelter["a" /* default */].show({
-                zIndex: 20000
-            });
+            item.style = 'loading';
+
+            var url = item.file_path;
+
+            // 文件存储路径
+            var savePath = Object(cordova_download["d" /* getSavePath */])() + item.name + '.vtpk';
+
+            // 下载文件地址存储到指定路径
+            Object(cordova_download["a" /* downloadFile */])(url, savePath, function (success) {
+                console.log(success);
+                var data = JSON.parse(success.toString());
+                if (data.type === "completed") {
+                    item.style = "done";
+                } else if (data.type === "progress") {
+                    item.id = data.id;
+                    item.md5 = (Math.round(parseInt(data.soFarBytes) / parseFloat(data.totalBytes) * 10000) / 100).toFixed(0);
+                }
+            }, function (error) {});
         },
+        pause: function pause(item) {
+            item.style = 'pause';
 
-        // 点赞 or 取消点赞
-        handlerFabulous: function handlerFabulous() {
-            var _this3 = this;
-
-            if (this.loading.fabulous) {
+            Object(cordova_download["b" /* downloadFilePause */])(item.id);
+        },
+        downloadFileStatus: function downloadFileStatus(item) {
+            // const url = this.$images + item.file_path
+            if (!item.file_path) {
                 return;
             }
 
-            this.loading.fabulous = true;
+            var url = item.file_path;
 
-            if (this.detail.isFabulous) {
-                Object(dynamic["a" /* deleteFabulous */])({ msgId: this.detail.id }).then(function (res) {
-                    _this3.detail.isFabulous = !_this3.detail.isFabulous;
+            var savePath = Object(cordova_download["d" /* getSavePath */])() + item.name + '.vtpk';
 
-                    _this3.queryFabulousAll();
+            Object(cordova_download["c" /* downloadFileSatus */])(url, savePath, function (success) {
+                console.log(success);
 
-                    _this3.$emit('refresh');
+                var data = JSON.parse(success.toString());
 
-                    _this3.loading.fabulous = false;
-                });
-            } else {
-                Object(dynamic["i" /* saveFabulous */])({ msgId: this.detail.id }).then(function (res) {
-                    _this3.detail.isFabulous = !_this3.detail.isFabulous;
-
-                    _this3.queryFabulousAll();
-
-                    _this3.$emit('refresh');
-
-                    _this3.loading.fabulous = false;
-                });
-            }
-        },
-
-        /***
-         * 点击评论按钮
-         */
-        handlerComment: function handlerComment() {
-            this.visible = false;
-
-            this.replyTo = null;
-        },
-
-        // 评论
-        saveComment: function saveComment() {
-            var _this4 = this;
-
-            if (!this.content || this.loading.comment) {
-                return;
-            }
-
-            this.loading.comment = true;
-
-            var data = {
-                msgId: this.id,
-                content: this.content,
-                status: "020002"
-            };
-
-            if (this.replyTo) {
-                data.commentId = this.replyTo.id;
-
-                console.log('\u4F60\u56DE\u590D\u4E86 ' + this.replyTo.alias + ': ' + this.content);
-            } else {
-                console.log('\u4F60\u53D1\u8868\u4E86\u8BC4\u8BBA: ' + this.content);
-            }
-
-            Object(dynamic["h" /* saveComment */])(data).then(function (res) {
-                _this4.content = "";
-
-                _this4.queryCommentList();
-
-                _this4.$emit('refresh');
-
-                _this4.visible = true;
-
-                _this4.loading.comment = false;
+                if (data.status === -2) {
+                    item.style = 'pause';
+                } else if (data.status === -3) {
+                    if (data.soFarBytes === data.totalBytes) {
+                        item.style = 'done';
+                    }
+                }
             });
         },
-        handlerMoreItem: function handlerMoreItem(item) {
-            this.replyTo = item;
-
-            item.MoreOpen = !item.MoreOpen;
-
-            shelter["a" /* default */].close();
-
-            this.visible = false;
-        }
-    },
-    watch: {
-        visible: function visible(value) {
-            var _this5 = this;
-
-            if (!value) {
-                this.$nextTick(function () {
-                    _this5.$refs.field && _this5.$refs.field.$refs && _this5.$refs.field.$refs.input && _this5.$refs.field.$refs.input.focus && _this5.$refs.field.$refs.input.focus();
-                });
+        downloadFileClear: function downloadFileClear(item) {},
+        initStatus: function initStatus(item) {
+            this.downloadFileStatus(item);
+            return '';
+        },
+        thatStatus: function thatStatus(item) {
+            switch (item.style) {
+                case 'loading':
+                    return '下载中';
+                case 'update':
+                    return '更新';
+                case 'pause':
+                    return '暂停';
+                case 'done':
+                    return '完成';
+                default:
+                    return '下载';
+            }
+        },
+        thatIcon: function thatIcon(item) {
+            switch (item.style) {
+                case 'update':
+                    return 'sync';
+                case 'pause':
+                    return 'pause_circle_outline';
+                case 'done':
+                    return 'done';
+                default:
+                    return 'arrow_downward';
+            }
+        },
+        thatColor: function thatColor(item) {
+            switch (item.style) {
+                case 'download':
+                    return '#03a9f4';
+                case 'update':
+                    return '#4caf50';
+                case 'done':
+                    return '#4caf50';
+                case 'pause':
+                    return '#03a9f4';
+                default:
+                    return '#ffeb3b';
             }
         }
     },
     components: {
-        Navigate: navigate_navigate["a" /* default */],
-        Field: field_default.a
-    }
+        Navigate: navigate_navigate["a" /* default */]
+    },
+    computed: {}
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-a7f458d6","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/dynamic/detail.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"dynamic-detail"},[_c('navigate',{attrs:{"title":"详情","position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('div',{staticClass:"dy-container"},[_c('div',{staticClass:"dynamic-head"},[_c('div',{staticClass:"source"},[_c('mu-avatar',{attrs:{"size":"50"}},[_c('img',{directives:[{name:"lazy",rawName:"v-lazy",value:(_vm.AvatarImage(_vm.$images + _vm.detail.portrait, _vm.detail.alias)),expression:"AvatarImage($images + detail.portrait, detail.alias)"}]})]),_vm._v(" "),_c('div',{staticClass:"info"},[_c('div',{staticClass:"nickname"},[_vm._v(_vm._s(_vm.detail.alias))]),_vm._v(" "),_c('div',{staticClass:"time"},[_vm._v(_vm._s(_vm.detail.createTime))])])],1),_vm._v(" "),_c('div',{staticClass:"msg",domProps:{"innerHTML":_vm._s(_vm.detail.content)}},[_vm._v(_vm._s(_vm.detail.content))]),_vm._v(" "),_c('div',{staticClass:"picture-box"},_vm._l((_vm.detail.images),function(item,index){return (item)?_c('div',{directives:[{name:"lazy",rawName:"v-lazy:background-image",value:(item),expression:"item",arg:"background-image"}],staticClass:"picture",class:_vm.picture,on:{"click":function($event){_vm.handlerPicture(_vm.detail.images, index)}}}):_vm._e()})),_vm._v(" "),(_vm.fabulous.length)?_c('div',{staticClass:"liker"},[_c('mu-icon',{staticStyle:{"margin-top":"1.8px","margin-bottom":"1px"},attrs:{"value":"thumb_up","size":"14"}}),_vm._v(" "),_c('div',{domProps:{"innerHTML":_vm._s(_vm.fabulousString)}})],1):_vm._e()]),_vm._v(" "),_c('div',{staticStyle:{"height":"15px"}}),_vm._v(" "),(_vm.commentList.length)?_c('div',{staticClass:"interact"},[_c('div',{staticClass:"comment"},_vm._l((_vm.commentList),function(item,index){return _c('div',{key:index,staticClass:"comment-item border-1px-b"},[_c('mu-avatar',{attrs:{"size":"50"}},[_c('img',{directives:[{name:"lazy",rawName:"v-lazy",value:(_vm.AvatarImage(_vm.$images + item.portrait, _vm.detail.alias)),expression:"AvatarImage($images + item.portrait, detail.alias)"}]})]),_vm._v(" "),_c('div',{staticClass:"message"},[_c('div',{staticClass:"nickname"},[_vm._v(_vm._s(item.alias))]),_vm._v(" "),_c('div',{staticClass:"time"},[_c('span',{staticStyle:{"margin-right":"0.5em"}},[_vm._v("第"+_vm._s(index + 1)+"楼")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(item.createTime))])]),_vm._v(" "),_c('div',{staticClass:"comment-content"},[_vm._v(_vm._s(item.content))]),_vm._v(" "),_vm._l((item.subComments),function(rItem){return _c('div',{staticClass:"reply border-1px-t"},[_c('div',{staticStyle:{"margin-bottom":"8px"}},[_c('span',{staticClass:"reply-name"},[_vm._v(_vm._s(rItem.alias))]),_vm._v(" "),_c('span',{staticClass:"time"},[_vm._v(_vm._s(rItem.createTime))])]),_vm._v(" "),_c('div',{staticClass:"reply-content"},[_vm._v("\n                                    "+_vm._s(rItem.content)+"\n                                ")])])})],2),_vm._v(" "),_c('mu-menu',{staticClass:"more",attrs:{"popover-class":"more-popover","placement":"right","open":item.MoreOpen},on:{"update:open":function($event){_vm.$set(item, "MoreOpen", $event)},"open":_vm.handlerMoreOpen}},[_c('mu-icon',{attrs:{"size":"22","value":"more_horiz","color":"#3899D7"}}),_vm._v(" "),_c('mu-list',{staticClass:"more-list",attrs:{"slot":"content"},slot:"content"},[_c('mu-list-item',{nativeOn:{"click":function($event){_vm.handlerMoreItem(item)}}},[_c('mu-list-item-title',[_vm._v("回复")])],1)],1)],1)],1)}))]):_vm._e()])]),_vm._v(" "),_c('transition-group',{staticClass:"dy-bottom-wrapper",attrs:{"tag":"div","name":"fade-bottom"}},[(_vm.visible)?_c('div',{key:"b",staticClass:"button-wrapper"},[_c('mu-ripple',{staticClass:"item",on:{"click":_vm.handlerComment}},[_c('mu-icon',{attrs:{"value":"speaker_notes","size":"22"}}),_vm._v(" "),_c('span',{staticStyle:{"margin-left":".5em"}},[_vm._v("评论")])],1),_vm._v(" "),_c('div',{staticClass:"line border-1px-l"}),_vm._v(" "),_c('mu-ripple',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading.fabulous),expression:"loading.fabulous"}],staticClass:"item",class:{'my-like': _vm.detail.isFabulous},attrs:{"data-mu-loading-size":"24"},on:{"click":_vm.handlerFabulous}},[_c('mu-icon',{attrs:{"value":"thumb_up","size":"22"}}),_vm._v(" "),_c('span',{staticStyle:{"margin-left":".5em"}},[_vm._v(_vm._s(_vm.detail.isFabulous ? '已赞' : '赞'))])],1)],1):_c('form',{key:"i",staticClass:"input-box-wrapper",attrs:{"action":"javascript:"},on:{"submit":_vm.onSubmit}},[_c('field',{ref:"field",attrs:{"maxlength":"120","placeholder":_vm.placeholder},on:{"blur":function($event){_vm.visible = true}},model:{value:(_vm.content),callback:function ($$v) {_vm.content=$$v},expression:"content"}})],1)])],1)}
-var staticRenderFns = []
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-e40ec1e6","hasScoped":false,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/offline-map/index.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"offline-map"},[_c('navigate',{attrs:{"title":"离线地图","position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"offline-map-container scroll-wrapper"},[_vm._m(0),_vm._v(" "),_vm._l((_vm.list),function(item,index){return [_c('div',{staticClass:"div-container"},[_c('mu-row',[_c('mu-col',{staticClass:"text-container",attrs:{"span":"9"}},[_c('div',{staticClass:"div-container-title"},[_vm._v(_vm._s(item.name))]),_vm._v(" "),_c('div',{staticClass:"div-container-desc"},[_vm._v(_vm._s(item.detail))])]),_vm._v(" "),_c('mu-col',{staticClass:"div-flex icon-container",attrs:{"span":"3"},on:{"click":function($event){_vm.handlerDownload(item)}}},[(item.style === 'loading')?_c('div',{staticClass:"circular-progress-wrapper"},[_c('mu-circular-progress',{attrs:{"mode":"determinate","color":"#4caf50","value":item.md5,"size":26}})],1):_c('div',{staticClass:"icon-wrapper"},[_c('mu-icon',{attrs:{"value":_vm.thatIcon(item),"color":_vm.thatColor(item),"size":"32"}})],1),_vm._v(" "),_c('div',{staticClass:"icon-container-title"},[_vm._v(_vm._s(_vm.thatStatus(item)))]),_vm._v(" "),_c('div',{staticClass:"icon-container-desc"},[_vm._v(_vm._s((item.size/(1024*1024)).toFixed(2))+"M")]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(false),expression:"false"}]},[_vm._v(_vm._s(_vm.initStatus(item)))])])],1)],1),_vm._v(" "),_c('div',{staticStyle:{"height":"20px"}})]})],2)],1)}
+var staticRenderFns = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"title"},[_vm._v("下载离线地图,节省90%流量!")]),_vm._v(" "),_c('div',{staticClass:"tips"},[_vm._v("(推荐在无线网络环境下载,其他环境下载可能会产生数据费用)")])])}]
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var dynamic_detail = (esExports);
-// CONCATENATED MODULE: ./src/views/dynamic/detail.vue
+/* harmony default export */ var about_offline_map = (esExports);
+// CONCATENATED MODULE: ./src/views/about/offline-map/index.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("TJrK")
+  __webpack_require__("z/BV")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -386,24 +251,24 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-a7f458d6"
+var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  detail,
-  dynamic_detail,
+  offline_map,
+  about_offline_map,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var views_dynamic_detail = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var views_about_offline_map = __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ }),
 
-/***/ "TJrK":
+/***/ "z/BV":
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

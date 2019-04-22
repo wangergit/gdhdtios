@@ -1,16 +1,16 @@
 webpackJsonp([18],{
 
-/***/ "2/3v":
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
 /***/ "VuIw":
 /***/ (function(module, exports) {
 
 
+
+/***/ }),
+
+/***/ "qZ0l":
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ }),
 
@@ -27,7 +27,7 @@ var assign_default = /*#__PURE__*/__webpack_require__.n(object_assign);
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./src/types/index.js + 3 modules
+// EXTERNAL MODULE: ./src/types/index.js + 5 modules
 var types = __webpack_require__("NaSR");
 
 // EXTERNAL MODULE: ./src/storage/index.js
@@ -39,8 +39,6 @@ var user = __webpack_require__("vMJZ");
 
 // CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/data/phone.vue
 
-//
-//
 //
 //
 //
@@ -164,7 +162,7 @@ var user = __webpack_require__("vMJZ");
             var _this2 = this;
 
             Object(user["b" /* getValidate */])(this.validate.type, this.form.phone).then(function (res) {
-                Object(types["e" /* validate */])(_this2.validate);
+                Object(types["d" /* validate */])(_this2.validate);
             });
         }
     },
@@ -172,21 +170,21 @@ var user = __webpack_require__("vMJZ");
         'form.phone': function formPhone(value) {
             this.validate.phone = value;
 
-            Object(types["e" /* validate */])(this.validate, true);
+            Object(types["d" /* validate */])(this.validate, true);
         }
     },
     components: {
         Navigate: navigate_navigate["a" /* default */]
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-67d64f44","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/data/phone.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"data-editor-phone"},[_c('navigate',{attrs:{"title":_vm.navigateTitle,"position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('mu-form',{ref:"form",staticClass:"form",attrs:{"model":_vm.form,"label-position":"left","label-width":"100"}},[_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"phone","label":"手机号码","rules":_vm.phoneRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入手机号码","prop":"phone","solo":""},model:{value:(_vm.form.phone),callback:function ($$v) {_vm.$set(_vm.form, "phone", $$v)},expression:"form.phone"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"code","label":"验证码","rules":_vm.codeRules}},[_c('div',{staticClass:"code-wrapper"},[_c('mu-text-field',{attrs:{"placeholder":"请输入验证码","prop":"code","solo":""},model:{value:(_vm.form.code),callback:function ($$v) {_vm.$set(_vm.form, "code", $$v)},expression:"form.code"}}),_vm._v(" "),_c('mu-button',{staticClass:"code-btn",attrs:{"disabled":_vm.validate.disabled,"color":"primary","small":"","flat":""},on:{"click":_vm.getValidate}},[_vm._v(_vm._s(_vm.validate.text)+"\n                    ")])],1)])],1),_vm._v(" "),_c('div',{staticClass:"button-wrapper"},[_c('mu-button',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],staticClass:"button",attrs:{"color":"#fff","data-mu-loading-size":"24","disabled":_vm.loading,"flat":""},on:{"click":_vm.submit}},[_vm._v("提交\n            ")])],1)],1)],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-323e14e0","hasScoped":false,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/data/phone.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"data-editor-phone"},[_c('navigate',{attrs:{"title":_vm.navigateTitle,"position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('mu-form',{ref:"form",attrs:{"model":_vm.form,"label-position":"left","label-width":"100"}},[_c('mu-form-item',{staticClass:"p-15 border-1px-b",attrs:{"prop":"phone","label":"手机号码","rules":_vm.phoneRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入手机号码","prop":"phone","solo":""},model:{value:(_vm.form.phone),callback:function ($$v) {_vm.$set(_vm.form, "phone", $$v)},expression:"form.phone"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"p-15 border-1px-b",attrs:{"prop":"code","label":"验证码","rules":_vm.codeRules}},[_c('div',{staticClass:"flex aic jcc mn"},[_c('mu-text-field',{attrs:{"placeholder":"请输入验证码","prop":"code","solo":""},model:{value:(_vm.form.code),callback:function ($$v) {_vm.$set(_vm.form, "code", $$v)},expression:"form.code"}}),_vm._v(" "),_c('mu-button',{staticClass:"mn",attrs:{"disabled":_vm.validate.disabled,"color":"primary","small":"","flat":""},on:{"click":_vm.getValidate}},[_vm._v(_vm._s(_vm.validate.text)+"\n                    ")])],1)])],1),_vm._v(" "),_c('mu-button',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],staticClass:"db ma w90 background-primary",attrs:{"color":"#fff","data-mu-loading-size":"24","disabled":_vm.loading,"flat":""},on:{"click":_vm.submit}},[_vm._v("提交\n        ")])],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ var data_phone = (esExports);
 // CONCATENATED MODULE: ./src/views/about/data/phone.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("2/3v")
+  __webpack_require__("qZ0l")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -199,7 +197,7 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-67d64f44"
+var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(

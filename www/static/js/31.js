@@ -1,6 +1,13 @@
 webpackJsonp([31],{
 
-/***/ "36gj":
+/***/ "0XU1":
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ "FWxB":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13,8 +20,8 @@ var toConsumableArray_default = /*#__PURE__*/__webpack_require__.n(toConsumableA
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./src/components/no-success/no-success.vue + 2 modules
-var no_success = __webpack_require__("amha");
+// EXTERNAL MODULE: ./src/base/no-success/no-success.vue + 2 modules
+var no_success = __webpack_require__("vdH4");
 
 // EXTERNAL MODULE: ./node_modules/vant/lib/swipe-cell/index.js
 var swipe_cell = __webpack_require__("BTmN");
@@ -27,7 +34,13 @@ var style_default = /*#__PURE__*/__webpack_require__.n(style);
 // EXTERNAL MODULE: ./src/api/personal.js
 var personal = __webpack_require__("YkBq");
 
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/ship/index.vue
+// EXTERNAL MODULE: ./src/common/js/mixins/index.js
+var mixins = __webpack_require__("HOuZ");
+
+// EXTERNAL MODULE: ./src/types/index.js + 5 modules
+var types = __webpack_require__("NaSR");
+
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/report/index.vue
 
 //
 //
@@ -62,6 +75,23 @@ var personal = __webpack_require__("YkBq");
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -69,84 +99,61 @@ var personal = __webpack_require__("YkBq");
 
 
 
-/* harmony default export */ var ship = ({
-    name: "myShips",
+
+
+/* harmony default export */ var report = ({
+    name: "tagging",
+    mixins: [mixins["a" /* MapMixins */]],
     data: function data() {
         return {
-            /***
-             * 刷新和加载更多
-             */
+            icon: 'static/icon/search_label.png',
             refresh: false,
             loading: false,
-            /***
-             * 我的船舶列表
-             */
-            list: [],
-            /***
-             * 检索信息
-             */
             params: {
+                userId: "111",
                 pageNumber: 0,
                 pageSize: 10
-            }
+            },
+            list: []
         };
     },
     activated: function activated() {
-        this.queryIBoatList();
+        this.queryReport();
     },
 
     methods: {
-        /***
-         * 查看 我的船舶 详情
-         */
-        handlerMessageItem: function handlerMessageItem(item) {
-            this.$router.push({
-                name: 'about-ship-detail',
-                query: {
-                    typeId: '013001',
-                    hideCollection: true
-                },
-                params: {
-                    type: '013001',
-                    id: item.boat.mmsi
-                }
-            });
-        },
-
-        /***
-         * 获取 我的船舶 列表
-         */
-        queryIBoatList: function queryIBoatList() {
+        // 点击选项
+        handlerItem: function handlerItem(item) {
             var _this = this;
 
-            this.params.pageNumber = 0;
+            this.$toast({
+                message: '定位中 ...',
+                duration: 0
+            });
+            this.setCenter(item.longitude, item.latitude).then(function (res) {
+                _this.$toast('定位成功');
 
-            return Object(personal["h" /* queryIBoatList */])(this.params).then(function (res) {
-                _this.list = res;
-                _this.refresh = false;
+                _this.$router.push('/');
+            }).catch(function (err) {
+                _this.$toast('定位失败');
             });
         },
 
-        /***
-         * 下拉刷新
-         */
+        // 下拉刷新
         onRefresh: function onRefresh() {
             this.refresh = true;
             this.$refs.scrollWrapper.scrollTop = 0;
-
-            this.queryIBoatList();
+            this.queryReport();
         },
 
-        /***
-         * 上拉加载
-         */
+        // 上拉加载
         onLoad: function onLoad() {
             var _this2 = this;
 
             this.loading = true;
             this.params.pageNumber++;
 
-            Object(personal["h" /* queryIBoatList */])(this.params).then(function (res) {
+            Object(personal["r" /* queryReport */])(this.params).then(function (res) {
                 var _list;
 
                 (_list = _this2.list).push.apply(_list, toConsumableArray_default()(res));
@@ -154,17 +161,40 @@ var personal = __webpack_require__("YkBq");
             });
         },
 
-        /***
-         * 删除
-         * @param item  item.id => 收藏 ID
-         * @param index 索引
-         */
-        handlerDelete: function handlerDelete(item, index) {
+        // 搜索
+        queryReport: function queryReport() {
             var _this3 = this;
 
-            Object(personal["c" /* deleteIBoatById */])(item.id).then(function (res) {
-                _this3.$toast('删除成功');
-                _this3.list.splice(index, 1);
+            this.params.pageNumber = 0;
+
+            Object(personal["r" /* queryReport */])(this.params).then(function (res) {
+                _this3.list = Object(types["c" /* isArray */])(res);
+                _this3.refresh = false;
+            });
+        },
+
+        // 删除
+        handlerDelete: function handlerDelete(item, index) {
+            var _this4 = this;
+
+            Object(personal["f" /* deleteReportInfo */])(item.id).then(function (res) {
+                _this4.list.splice(index, 1);
+
+                window.Arcgis && window.Arcgis.refreshMapLayers();
+            });
+        },
+
+        /***
+         * 点击进入修改标注信息界面
+         * @param item
+         * @param index
+         */
+        handlerSave: function handlerSave(item, index) {
+            this.$router.push({
+                name: 'about-report-detail',
+                params: {
+                    id: item.id
+                }
             });
         }
     },
@@ -174,14 +204,14 @@ var personal = __webpack_require__("YkBq");
         SwipeCell: swipe_cell_default.a
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-5c46ec8b","hasScoped":false,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/ship/index.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"my-ships"},[_c('navigate',{attrs:{"title":"我的船舶","position":"absolute"}}),_vm._v(" "),_c('div',{ref:"scrollWrapper",staticClass:"scroll-wrapper"},[(_vm.list.length)?_c('mu-load-more',{attrs:{"refreshing":_vm.refresh,"loading":_vm.loading},on:{"refresh":_vm.onRefresh,"load":_vm.onLoad}},_vm._l((_vm.list),function(item,index){return _c('swipe-cell',{key:index,staticClass:"border-1px-b",attrs:{"right-width":88}},[_c('div',{staticClass:"list-item",on:{"click":function($event){_vm.handlerMessageItem(item, index)}}},[_c('div',{staticClass:"info"},[_c('div',{staticClass:"ship-name"},[_vm._v(_vm._s(item.boat.name))]),_vm._v(" "),_c('div',[_vm._v("MMSI："+_vm._s(item.boat.mmsi))])]),_vm._v(" "),_c('div',{staticClass:"ship-state"})]),_vm._v(" "),_c('mu-button',{staticClass:"delete",attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":function($event){_vm.handlerDelete(item, index)}},slot:"right"},[_vm._v("\n                    删除\n                ")])],1)})):_c('no-success',{attrs:{"text":"您还没有添加任何船舶"}})],1),_vm._v(" "),_c('transition',{attrs:{"name":"views-left"}},[_c('keep-alive',[_c('router-view',{staticClass:"views"})],1)],1)],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-c17548e0","hasScoped":false,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/report/index.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"tagging"},[_c('navigate',{attrs:{"title":"我的上报","position":"absolute"}}),_vm._v(" "),_c('div',{ref:"scrollWrapper",staticClass:"scroll-wrapper"},[(_vm.list.length)?_c('mu-load-more',{attrs:{"refreshing":_vm.refresh,"loading":_vm.loading},on:{"refresh":_vm.onRefresh,"load":_vm.onLoad}},[_c('mu-list',{staticClass:"pn"},_vm._l((_vm.list),function(item,index){return _c('swipe-cell',{key:item.id,staticClass:"border-1px-b",attrs:{"right-width":120}},[_c('mu-list-item',{attrs:{"avatar":""},nativeOn:{"click":function($event){_vm.handlerItem(item)}}},[_c('mu-list-item-content',{staticClass:"tagging-content"},[_c('mu-list-item-title',[_vm._v(_vm._s(item.type.name))]),_vm._v(" "),_c('mu-list-item-sub-title',[(item.status=='032001')?_c('span',[_vm._v(" 描述："+_vm._s(item.describe))]):_vm._e(),_vm._v(" "),(item.status=='032002')?_c('span',{staticStyle:{"color":"#13ce66"}},[_vm._v("已确认")]):_vm._e()])],1)],1),_vm._v(" "),_c('div',{staticClass:"flex h",attrs:{"slot":"right"},slot:"right"},[_c('mu-button',{staticClass:"flex-1 h bdrsn modify",attrs:{"color":"#fff","flat":""},on:{"click":function($event){_vm.handlerSave(item, index)}}},[_vm._v("\n                            修改\n                        ")]),_vm._v(" "),_c('mu-button',{staticClass:"flex-1 h bdrsn delete",attrs:{"color":"#fff","flat":""},on:{"click":function($event){_vm.handlerDelete(item, index)}}},[_vm._v("\n                            删除\n                        ")])],1)],1)}))],1):_c('no-success',{attrs:{"text":"您还没有任何上报信息"}})],1),_vm._v(" "),_c('transition',{attrs:{"name":"fade-left"}},[_c('keep-alive',[_c('router-view',{staticClass:"views",on:{"update":_vm.onRefresh}})],1)],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var about_ship = (esExports);
-// CONCATENATED MODULE: ./src/views/about/ship/index.vue
+/* harmony default export */ var about_report = (esExports);
+// CONCATENATED MODULE: ./src/views/about/report/index.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("COFO")
+  __webpack_require__("0XU1")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -198,23 +228,16 @@ var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  ship,
-  about_ship,
+  report,
+  about_report,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var views_about_ship = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var views_about_report = __webpack_exports__["default"] = (Component.exports);
 
-
-/***/ }),
-
-/***/ "COFO":
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
 
 /***/ })
 

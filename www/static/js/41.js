@@ -1,64 +1,45 @@
 webpackJsonp([41],{
 
-/***/ "M1N0":
+/***/ "5Ksj":
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
 
-/***/ "g/ET":
+/***/ "MI+4":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
-// EXTERNAL MODULE: ./node_modules/babel-runtime/regenerator/index.js
-var regenerator = __webpack_require__("Xxa5");
-var regenerator_default = /*#__PURE__*/__webpack_require__.n(regenerator);
-
-// EXTERNAL MODULE: ./node_modules/babel-runtime/helpers/asyncToGenerator.js
-var asyncToGenerator = __webpack_require__("exGp");
-var asyncToGenerator_default = /*#__PURE__*/__webpack_require__.n(asyncToGenerator);
+// EXTERNAL MODULE: ./node_modules/babel-runtime/core-js/number/parse-int.js
+var parse_int = __webpack_require__("gBtx");
+var parse_int_default = /*#__PURE__*/__webpack_require__.n(parse_int);
 
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./src/api/dynamic.js
-var dynamic = __webpack_require__("IGLS");
+// EXTERNAL MODULE: ./src/base/progress/progress.vue + 2 modules
+var progress = __webpack_require__("PYT0");
 
-// EXTERNAL MODULE: ./src/api/search.js
-var search = __webpack_require__("8stH");
+// EXTERNAL MODULE: ./src/common/mixins/index.js + 9 modules
+var mixins = __webpack_require__("gDrV");
 
-// EXTERNAL MODULE: ./src/types/index.js + 3 modules
+// EXTERNAL MODULE: ./src/api/sys.js
+var sys = __webpack_require__("DEHg");
+
+// EXTERNAL MODULE: ./src/common/js/cordova/map.js
+var map = __webpack_require__("HHe6");
+
+// EXTERNAL MODULE: ./src/common/js/cordova/download.js
+var download = __webpack_require__("4+bB");
+
+// EXTERNAL MODULE: ./src/types/index.js + 5 modules
 var types = __webpack_require__("NaSR");
 
-// EXTERNAL MODULE: ./src/common/utils/time.js
-var time = __webpack_require__("NZXN");
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/setter/update.vue
 
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/dynamic/transport-info.vue
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -115,176 +96,113 @@ var time = __webpack_require__("NZXN");
 
 
 
-/* harmony default export */ var transport_info = ({
-    name: "transport",
+
+
+/* harmony default export */ var update = ({
+    name: "update",
+    mixins: [mixins["a" /* appMixins */]],
     data: function data() {
-        var _this = this;
-
         return {
-            form: {
-                name: "",
-                type: "",
-                weight: "",
-                length: "",
-                width: "",
-                transportPort: "",
-                time: "",
-                detail: ""
+            loading: false,
+            tip: '',
+            news: {
+                visible: false,
+                version: '0.0.0',
+                file: {
+                    size: 0,
+                    url: '',
+                    savePath: ''
+                },
+                uploadTime: '',
+                uploadContent: ''
             },
-            /***
-             * 表单验证
-             */
-            nameRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写船舶名称' }, { validate: function validate(val) {
-                    return val.length >= 2;
-                }, message: '船舶名称长度大于或等于 2 ' }],
-            weightRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写船舶重量' }, { validate: function validate(val) {
-                    return (/^(-?\d+)(\.\d{1,2})?$/.test(val)
-                    );
-                }, message: '请精确到小数点后两位' }],
-            lengthRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写船舶长度' }, { validate: function validate(val) {
-                    return (/^(-?\d+)(\.\d{1,2})?$/.test(val)
-                    );
-                }, message: '请精确到小数点后两位' }],
-            widthRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写船舶宽度' }, { validate: function validate(val) {
-                    return (/^(-?\d+)(\.\d{1,2})?$/.test(val)
-                    );
-                }, message: '请精确到小数点后两位' }],
-            timeRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写装货时间' }],
-            shipTypeRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须选择船舶类型' }, {
-                validate: function validate(val) {
-                    return _this.shipTypeOptions.findIndex(function (item) {
-                        return item.name === val;
-                    }) !== -1;
-                },
-                message: '请选择正确的船舶类型'
-            }],
-            portRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须选择港口' }, {
-                validate: function validate(val) {
-                    return _this.portTypeOptions.findIndex(function (item) {
-                        return item.name === val;
-                    }) !== -1;
-                },
-                message: '请选择正确的港口类型'
-            }],
-            phoneRules: [{ validate: function validate(val) {
-                    return !!val;
-                }, message: '必须填写手机号码' }, { validate: function validate(val) {
-                    return (/^1\d{10}$/.test(val)
-                    );
-                }, message: '请输入正确的手机号码' }],
-            /***
-             * 下拉选项：
-             *      value:  值
-             *      name:  名称
-             */
-            shipTypeOptions: [],
-            portTypeOptions: []
+            progress: {
+                visible: false,
+                value: 0,
+                max: 100
+            }
         };
-    },
-    created: function created() {
-        this.queryTypeDictByFid();
     },
     activated: function activated() {
-        this.form = {
-            name: "",
-            type: "",
-            weight: "",
-            length: "",
-            width: "",
-            transportPort: "",
-            time: "",
-            detail: ""
-        };
+        this.loading = false;
+        this.tip = '';
+
+        this.checkUpdate();
     },
 
     methods: {
-        queryTypeDictByFid: function queryTypeDictByFid() {
-            var _this2 = this;
+        checkUpdate: function checkUpdate() {
+            var _this = this;
 
-            return asyncToGenerator_default()( /*#__PURE__*/regenerator_default.a.mark(function _callee() {
-                return regenerator_default.a.wrap(function _callee$(_context) {
-                    while (1) {
-                        switch (_context.prev = _context.next) {
-                            case 0:
-                                _context.t0 = types["d" /* isArray */];
-                                _context.next = 3;
-                                return Object(search["c" /* queryTypeDictByFid */])('010');
+            this.loading = true;
+            this.$toast({
+                position: 'center',
+                type: 'loading',
+                message: '正在查询 ……',
+                duration: 0
+            });
 
-                            case 3:
-                                _context.t1 = _context.sent;
-                                _this2.shipTypeOptions = (0, _context.t0)(_context.t1);
-                                _context.t2 = types["d" /* isArray */];
-                                _context.next = 8;
-                                return Object(search["c" /* queryTypeDictByFid */])('019');
-
-                            case 8:
-                                _context.t3 = _context.sent;
-                                _this2.portTypeOptions = (0, _context.t2)(_context.t3);
-
-                            case 10:
-                            case "end":
-                                return _context.stop();
-                        }
-                    }
-                }, _callee, _this2);
-            }))();
-        },
-        handlerSubmit: function handlerSubmit() {
-            var _this3 = this;
-
-            this.$refs.form.validate().then(function (result) {
-                if (result) {
-                    var loading = _this3.$loading();
-
-                    var data = {
-                        content: _this3.splicingContent(),
-                        type: '004003',
-                        mediaType: '003002',
-                        status: '020002'
-                    };
-
-                    Object(dynamic["j" /* saveMoment */])(data);
-
-                    loading.close();
-
-                    _this3.$toast('发表成功！');
-
-                    _this3.$emit('refresh');
-
-                    _this3.$router.go(-2);
+            Object(sys["a" /* checkUpdate */])(this.version).then(function (res) {
+                if (res && res.version && Object(types["e" /* versionContrast */])(_this.version, res.version)) {
+                    _this.news.visible = true;
+                    _this.news.version = res.version;
+                    _this.news.file.size = (res.file_size / 1024 / 1024).toFixed(2);
+                    _this.news.file.url = res.file_url;
+                    _this.news.uploadTime = res.upload_time;
+                    _this.news.uploadContent = res.detail;
+                    _this.tip = '发现新版本';
+                } else {
+                    _this.tip = '已经是最新版本';
                 }
+
+                _this.loading = false;
+                _this.$toast.clear();
             });
         },
-        splicingContent: function splicingContent() {
-            return "船舶名称:" + this.form.name + "<br />" + "船舶类型:" + this.form.type + "<br />" + "载重吨:" + this.form.weight + "吨<br />" + "船长:" + this.form.length + "米<br />" + "船宽:" + this.form.width + "米<br />" + "待运港:" + this.form.transportPort + "<br />" + "待运时间:" + this.form.time + "<br />" + "备注:" + this.form.detail + "<br />";
+        downloadApk: function downloadApk() {
+            var _this2 = this;
+
+            this.progress.visible = true;
+            // this.news.file.url = this.$images + this.news.file.url
+            if (!this.news.file.url) {
+                return this.$toast('无效下载地址');
+            }
+
+            console.log("%c\u65B0\u7248\u672C\u4E0B\u8F7D\u5730\u5740: " + this.news.file.url, 'color: #9c27b0');
+
+            this.news.file.savePath = Object(download["d" /* getSavePath */])() + this.version + ".apk";
+
+            Object(download["a" /* downloadFile */])(this.news.file.url, this.news.file.savePath, function (success) {
+                var data = JSON.parse(success.toString());
+
+                //下载完成安装apk
+                if (data.type === "completed") {
+                    _this2.progress.visible = false;
+                    _this2.news.visible = false;
+
+                    Object(map["n" /* installationApkfile */])(_this2.news.file.savePath);
+                }
+
+                if (data.type === "progress") {
+                    _this2.progress.value = parse_int_default()(data.soFarBytes);
+                    _this2.progress.max = parse_int_default()(data.totalBytes);
+                }
+            }, console.log);
         }
     },
     components: {
+        MProgress: progress["a" /* default */],
         Navigate: navigate_navigate["a" /* default */]
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-1b236566","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/dynamic/transport-info.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"transport"},[_c('mu-appbar',{staticClass:"appbar"},[_c('mu-button',{attrs:{"slot":"left","color":"#fff","icon":""},on:{"click":function($event){_vm.$router.back()}},slot:"left"},[_c('mu-icon',{attrs:{"value":"navigate_before"}})],1),_vm._v(" "),_c('div',{staticClass:"title"},[_vm._v("船舶待运")]),_vm._v(" "),_c('mu-button',{attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":_vm.handlerSubmit},slot:"right"},[_vm._v("\n            发送\n        ")])],1),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('mu-form',{ref:"form",staticClass:"form",attrs:{"model":_vm.form,"label-position":"left","label-width":"100"}},[_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"name","label":"船舶名称","rules":_vm.nameRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入船舶名称","prop":"name","solo":""},model:{value:(_vm.form.name),callback:function ($$v) {_vm.$set(_vm.form, "name", $$v)},expression:"form.name"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"type","label":"船舶类型","rules":_vm.shipTypeRules}},[_c('mu-select',{attrs:{"placeholder":"请输入船舶类型","solo":""},model:{value:(_vm.form.type),callback:function ($$v) {_vm.$set(_vm.form, "type", $$v)},expression:"form.type"}},_vm._l((_vm.shipTypeOptions),function(option,index){return _c('mu-option',{key:option.name,attrs:{"label":option.name,"value":option.name}})}))],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"weight","label":"载重吨","rules":_vm.weightRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入载重吨","suffix":"吨","prop":"weight","type":"number","solo":""},model:{value:(_vm.form.weight),callback:function ($$v) {_vm.$set(_vm.form, "weight", $$v)},expression:"form.weight"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"length","label":"船长","rules":_vm.lengthRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入船长","suffix":"米","prop":"length","type":"number","solo":""},model:{value:(_vm.form.length),callback:function ($$v) {_vm.$set(_vm.form, "length", $$v)},expression:"form.length"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"width","label":"船宽","rules":_vm.widthRules}},[_c('mu-text-field',{attrs:{"placeholder":"请输入船宽","suffix":"米","prop":"width","type":"number","solo":""},model:{value:(_vm.form.width),callback:function ($$v) {_vm.$set(_vm.form, "width", $$v)},expression:"form.width"}})],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"prop":"transportPort","label":"待运港","rules":_vm.portRules}},[_c('mu-select',{attrs:{"placeholder":"待运港","solo":""},model:{value:(_vm.form.transportPort),callback:function ($$v) {_vm.$set(_vm.form, "transportPort", $$v)},expression:"form.transportPort"}},_vm._l((_vm.portTypeOptions),function(option,index){return _c('mu-option',{key:option.name,attrs:{"label":option.name,"value":option.name}})}))],1),_vm._v(" "),_c('mu-form-item',{staticClass:"form-item-s border-1px-b",attrs:{"label":"待运时间","prop":"time","rules":_vm.timeRules}},[_c('mu-date-input',{attrs:{"type":"dateTime","view-type":"list","container":"bottomSheet","placeholder":"请选择装货时间","solo":""},model:{value:(_vm.form.time),callback:function ($$v) {_vm.$set(_vm.form, "time", $$v)},expression:"form.time"}})],1),_vm._v(" "),_c('div',[_c('mu-sub-header',[_vm._v("备注")]),_vm._v(" "),_c('mu-text-field',{staticClass:"border-1px-b",staticStyle:{"padding":"0 16px 30px"},attrs:{"placeholder":"请描述更多信息","rows":4,"max-length":200,"full-width":"","multi-line":"","solo":""},model:{value:(_vm.form.detail),callback:function ($$v) {_vm.$set(_vm.form, "detail", $$v)},expression:"form.detail"}})],1)],1)],1)],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-5f212996","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/setter/update.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"update"},[_c('navigate',{attrs:{"title":"更新","position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('div',{staticClass:"box paper"},[_c('div',{staticClass:"news-icon-wrapper mu-primary-color"},[_c('mu-icon',{attrs:{"value":"arrow_upward","size":"70","color":"#fff"}})],1),_vm._v(" "),_c('div',{directives:[{name:"loading",rawName:"v-loading",value:(_vm.loading),expression:"loading"}],staticClass:"por version-status pt-15 pb-10",attrs:{"data-mu-loading-size":"16"}},[_vm._v(_vm._s(_vm.tip)+"\n            ")]),_vm._v(" "),_c('div',{staticClass:"version"},[_vm._v(_vm._s(_vm.version))]),_vm._v(" "),_c('mu-expand-transition',[(_vm.news.visible)?_c('div',{staticClass:"new-version"},[_c('div',{staticClass:"header border-1px-b"},[_c('span',{staticClass:"title"},[_vm._v("发现新版本")]),_vm._v(" "),_c('div',{staticClass:"btn"},[_c('mu-button',{staticClass:"ignore-btn",attrs:{"flat":"","small":""},on:{"click":function($event){_vm.news.visible = false}}},[_vm._v("忽略")]),_vm._v(" "),_c('mu-button',{staticClass:"version-btn",attrs:{"color":"success","flat":"","small":""},on:{"click":_vm.downloadApk}},[_vm._v("升级\n                            ")])],1)]),_vm._v(" "),_c('ul',[_c('li',{staticClass:"lhp"},[_vm._v("版本："+_vm._s(_vm.news.version))]),_vm._v(" "),_c('li',{staticClass:"lhp"},[_vm._v("大小："+_vm._s(_vm.news.file.size)+"M")]),_vm._v(" "),_c('li',{staticClass:"lhp"},[_vm._v("更新时间："+_vm._s(_vm.news.uploadTime))]),_vm._v(" "),_c('li',{staticClass:"lhp"},[_vm._v("更新内容：")]),_vm._v(" "),_vm._l((_vm.news.uploadContent.split(/\n/)),function(item){return _c('li',{staticClass:"pl-25 lht"},[_vm._v(_vm._s(item))])})],2)]):_vm._e()])],1),_vm._v(" "),(!_vm.news.visible)?_c('div',{staticClass:"button-wrapper"},[_c('mu-button',{staticClass:"button mu-primary-color",attrs:{"color":"#fff","flat":""},on:{"click":_vm.checkUpdate}},[_vm._v("检查更新")])],1):_vm._e(),_vm._v(" "),_c('mu-dialog',{attrs:{"open":_vm.progress.visible,"width":"80%","lock-scroll":""},on:{"update:open":function($event){_vm.$set(_vm.progress, "visible", $event)}}},[_c('mu-sub-header',[_vm._v("正在下载...")]),_vm._v(" "),_c('br'),_vm._v(" "),_c('m-progress',{attrs:{"progress":_vm.progress.value,"max":_vm.progress.max}}),_vm._v(" "),_c('br')],1)],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var dynamic_transport_info = (esExports);
-// CONCATENATED MODULE: ./src/views/dynamic/transport-info.vue
+/* harmony default export */ var setter_update = (esExports);
+// CONCATENATED MODULE: ./src/views/about/setter/update.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("M1N0")
+  __webpack_require__("5Ksj")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -297,19 +215,19 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-1b236566"
+var __vue_scopeId__ = "data-v-5f212996"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  transport_info,
-  dynamic_transport_info,
+  update,
+  setter_update,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var views_dynamic_transport_info = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var about_setter_update = __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ })

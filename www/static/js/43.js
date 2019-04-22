@@ -1,359 +1,370 @@
 webpackJsonp([43],{
 
-/***/ "CL89":
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ "ycbT":
+/***/ "BPou":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
-// EXTERNAL MODULE: ./node_modules/babel-runtime/helpers/toConsumableArray.js
-var toConsumableArray = __webpack_require__("Gu7T");
-var toConsumableArray_default = /*#__PURE__*/__webpack_require__.n(toConsumableArray);
+// EXTERNAL MODULE: ./node_modules/babel-runtime/regenerator/index.js
+var regenerator = __webpack_require__("Xxa5");
+var regenerator_default = /*#__PURE__*/__webpack_require__.n(regenerator);
+
+// EXTERNAL MODULE: ./node_modules/babel-runtime/core-js/number/parse-int.js
+var parse_int = __webpack_require__("gBtx");
+var parse_int_default = /*#__PURE__*/__webpack_require__.n(parse_int);
+
+// EXTERNAL MODULE: ./node_modules/babel-runtime/core-js/object/assign.js
+var object_assign = __webpack_require__("woOf");
+var assign_default = /*#__PURE__*/__webpack_require__.n(object_assign);
+
+// EXTERNAL MODULE: ./node_modules/babel-runtime/helpers/asyncToGenerator.js
+var asyncToGenerator = __webpack_require__("exGp");
+var asyncToGenerator_default = /*#__PURE__*/__webpack_require__.n(asyncToGenerator);
+
+// EXTERNAL MODULE: ./node_modules/babel-runtime/helpers/extends.js
+var helpers_extends = __webpack_require__("Dd8w");
+var extends_default = /*#__PURE__*/__webpack_require__.n(helpers_extends);
+
+// EXTERNAL MODULE: ./node_modules/vue/dist/vue.esm.js
+var vue_esm = __webpack_require__("7+uW");
 
 // EXTERNAL MODULE: ./src/base/navigate/navigate.vue + 2 modules
 var navigate_navigate = __webpack_require__("uyDV");
 
-// EXTERNAL MODULE: ./src/components/no-success/no-success.vue + 2 modules
-var no_success = __webpack_require__("amha");
+// EXTERNAL MODULE: ./src/base/progress/progress.vue + 2 modules
+var progress = __webpack_require__("PYT0");
 
-// EXTERNAL MODULE: ./src/common/utils/elements.js
-var utils_elements = __webpack_require__("O0RF");
-
-// EXTERNAL MODULE: ./src/api/navigation.js
-var navigation = __webpack_require__("LNF3");
-
-// EXTERNAL MODULE: ./src/types/index.js + 3 modules
-var types = __webpack_require__("NaSR");
+// EXTERNAL MODULE: ./node_modules/vuex/dist/vuex.esm.js
+var vuex_esm = __webpack_require__("NYxO");
 
 // EXTERNAL MODULE: ./src/common/mixins/index.js + 9 modules
 var mixins = __webpack_require__("gDrV");
 
-// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/navigational/index.vue
+// EXTERNAL MODULE: ./src/api/sys.js
+var sys = __webpack_require__("DEHg");
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// EXTERNAL MODULE: ./src/api/search.js
+var search = __webpack_require__("8stH");
+
+// EXTERNAL MODULE: ./src/common/js/cordova/index.js
+var cordova = __webpack_require__("HM3N");
+
+// EXTERNAL MODULE: ./src/common/js/cordova/map.js
+var map = __webpack_require__("HHe6");
+
+// EXTERNAL MODULE: ./src/storage/app.js
+var app = __webpack_require__("EzHk");
+
+// CONCATENATED MODULE: ./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./src/views/about/setter/index.vue
 
 
 
 
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
-/* harmony default export */ var navigational = ({
-    name: "navigational",
-    mixins: [mixins["a" /* appMixins */]],
+
+
+
+
+
+
+
+
+
+/* harmony default export */ var setter = ({
+    name: "setter",
+    mixins: [mixins["a" /* appMixins */], mixins["b" /* elementMixins */], mixins["c" /* layerMixins */], mixins["d" /* mapMixins */], mixins["g" /* routeMixins */], mixins["h" /* searchMixins */], mixins["i" /* userMixins */]],
     data: function data() {
         return {
-            /***
-             * 导航选项列表
-             */
-            items: utils_elements["a" /* default */].list,
-            /***
-             * 上拉刷新&下拉加载
-             */
-            refreshing: false,
-            loading: false,
-            /***
-             * 结果列表
-             */
-            list: [],
-            /***
-             * 搜索条件
-             */
-            params: {
-                typeId: '',
-                name: '',
-                pageNumber: 1,
-                pageSize: 20
-            },
-            /***
-             * 导航栏样式
-             */
-            styles: {
-                itemsWrapper: {
-                    width: undefined,
-                    maxHeight: 500
-                },
-                items: {
-                    width: undefined,
-                    scrollLeft: 0
-                },
-                item: {
-                    width: undefined
-                }
-            }
+            cacheView: false,
+            progress: 0,
+            cacheIcon: 'static/image/Spin.gif',
+            cacheSize: 0
         };
     },
-    created: function created() {
-        var _this = this;
-
-        this.$watch('params.name', Object(types["b" /* debounce */])(function (value) {
-            _this.onRefresh();
-        }, 300));
-
-        this.$watch('params.typeId', function (value) {
-            _this.$router.replace({
-                name: 'navigational',
-                query: {
-                    id: value
-                }
-            });
-
-            _this.onRefresh();
-        });
-
-        var width = this.screen.width;
-
-
-        this.styles.itemsWrapper.width = width;
-        this.styles.items.width = width;
-        this.styles.item.width = width * 0.2;
-    },
     activated: function activated() {
-        this.params.name = '';
+        this.progress = 0;
 
-        if (this.$route.query.id) {
-            this.handlerNavigationItem(this.$route.query.id);
-        }
+        this.getCacheSize();
     },
 
-    methods: {
-        // 点击导航
-        handlerNavigationItem: function handlerNavigationItem(id) {
-            var width = this.screen.width;
+    methods: extends_default()({
+        _initAppDefault: function _initAppDefault() {
+            var _this = this;
+
+            return asyncToGenerator_default()( /*#__PURE__*/regenerator_default.a.mark(function _callee() {
+                var resources, _document$documentEle, offsetWidth, offsetHeight, layers, timer;
+
+                return regenerator_default.a.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                if (_this.cacheSize) {
+                                    _context.next = 3;
+                                    break;
+                                }
+
+                                _this.$alert('缓存已为您清理完毕。', '清除缓存');
+
+                                return _context.abrupt("return");
+
+                            case 3:
+
+                                _this.cacheView = true;
+
+                                _context.next = 6;
+                                return Object(map["e" /* clearHistory */])();
+
+                            case 6:
+
+                                _this.resetSpeech();
+                                _this.resetText();
+                                _this.resetBrightness();
+                                _this.resetSpeechGender();
+                                _this.resetLayers();
+                                _this.resetMaps();
+                                _this.resetRoutes();
+                                _this.clearRouteHistory();
+                                _this.clearRouteSearchHistory();
+                                _this.clearSearchHistory();
+                                _this.resetTheme();
+
+                                _context.next = 19;
+                                return Object(search["a" /* getParams */])('imgPrefixPath');
+
+                            case 19:
+                                resources = _context.sent;
 
 
-            if (this.params.typeId === id) {
-                this.params.typeId = '';
-                this.styles.item.width = width * 0.2;
-                this.styles.items.width = width;
-                this.styles.items.scrollLeft = 0;
-                this.styles.itemsWrapper.maxHeight = 500;
-            } else {
-                this.params.typeId = id;
+                                console.log("%c\u56FE\u7247\u8D44\u6E90\u670D\u52A1\u5668\u5730\u5740\uFF1A " + resources, 'color: #66ccff');
 
-                this.styles.item.width = 0.2 * width;
-                this.styles.items.width = this.items.length * 0.2 * width;
-                this.styles.itemsWrapper.maxHeight = 90;
+                                Object(app["E" /* setResources */])(resources);
 
-                this.animation();
-            }
+                                vue_esm["default"].prototype.$images = "" + resources;
 
-            this.params.name = '';
+                                _document$documentEle = document.documentElement, offsetWidth = _document$documentEle.offsetWidth, offsetHeight = _document$documentEle.offsetHeight;
+
+
+                                _this.setScreen({ width: offsetWidth, height: offsetHeight });
+
+                                document.documentElement.addEventListener('size', function () {
+                                    var _document$documentEle2 = document.documentElement,
+                                        offsetWidth = _document$documentEle2.offsetWidth,
+                                        offsetHeight = _document$documentEle2.offsetHeight;
+
+
+                                    _this.setScreen({ width: offsetWidth, height: offsetHeight });
+                                });
+
+                                _context.t0 = _this;
+                                _context.next = 29;
+                                return cordova["a" /* app */].version();
+
+                            case 29:
+                                _context.t1 = _context.sent;
+
+                                _context.t0.setVersion.call(_context.t0, _context.t1);
+
+                                /***
+                                 * 初始化
+                                 */
+                                document.documentElement.addEventListener('touchstart', _this.touchStart);
+                                document.documentElement.addEventListener('touchend', _this.touchEnd);
+
+                                // // 是否打开 GPS & 网络
+                                // window.Arcgis && window.Arcgis.registerNetReceiver()
+                                // window.Arcgis && window.Arcgis.observeWifiSwitch()
+
+                                // 路地图
+                                Object(map["d" /* changeTieldLayerVisible */])(_this.landMap);
+                                // 电子航道图
+                                Object(map["a" /* changeChartLayerVisible */])(_this.channelMap);
+
+                                // 图层点
+                                layers = _this.layers.map(function (item, index) {
+                                    if (item.id === "013006") {
+                                        Object(map["b" /* changeMapFramesServerState */])(item.status);
+                                    } else if (item.status) {
+                                        Object(map["E" /* showLayers */])([item.id]);
+                                    } else {
+                                        Object(map["m" /* hideLayers */])([item.id]);
+                                    }
+
+                                    return assign_default()({}, item, {
+                                        icon: _this.LAYERS[index].icon,
+                                        id: _this.LAYERS[index].id,
+                                        name: _this.LAYERS[index].name,
+                                        color: _this.LAYERS[index].color
+                                    });
+                                });
+
+
+                                _this.setLayers(layers);
+
+                                // 主题
+                                Object(map["c" /* changeTheme */])(_this.theme);
+
+                                _this.setModeTiming();
+
+                                // 搜索结果图标
+                                Object(sys["c" /* getSetters */])({ key: 'SEARCH_RESULT_ICO' }).then(function (res) {
+                                    Array.isArray(res) && res.length > 0 && _this.saveSearchIcons(res);
+                                });
+
+                                // 搜索类型图标
+                                Object(sys["c" /* getSetters */])({ key: 'SEARCH_TYPE_ICO' }).then(function (res) {
+                                    Array.isArray(res) && res.length > 0 && _this.setIcons(res);
+                                });
+
+                                // 搜索类型列表
+                                Object(sys["c" /* getSetters */])({ key: 'SEARCH_TYPE_LIST' }).then(function (res) {
+                                    Array.isArray(res) && res.length > 0 && _this.saveSearchList(res);
+                                });
+
+                                timer = setInterval(function () {
+                                    _this.progress += parse_int_default()(Math.random() * 500) / 100;
+
+                                    if (_this.progress >= 100) {
+                                        _this.cacheView = false;
+
+                                        _this.progress = 0;
+
+                                        _this.getCacheSize();
+
+                                        clearInterval(timer);
+                                    }
+                                }, 100);
+
+                            case 43:
+                            case "end":
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, _this);
+            }))();
         },
 
-        // 刷新
-        onRefresh: function onRefresh() {
-            this.refreshing = true;
-            this.$refs.content.scrollTop = 0;
-
-            this.getNavigationals();
+        // 关闭弹出层
+        dialogClose: function dialogClose() {
+            clearInterval(this.timer);
         },
+        guideClick: function guideClick() {
+            this.resetNovice();
 
-        // 加载更多
-        load: function load() {
+            this.$router.push('/');
+        },
+        getCacheSize: function getCacheSize() {
             var _this2 = this;
 
-            this.loading = true;
-            this.params.pageNumber++;
-
-            if (this.params.typeId) {
-                this.params.types = [this.params.typeId];
-
-                Object(navigation["c" /* getNavigationals */])(this.params).then(function (res) {
-                    var _list;
-
-                    (_list = _this2.list).push.apply(_list, toConsumableArray_default()(Object(types["d" /* isArray */])(res)));
-
-                    _this2.loading = false;
-                });
-            }
-        },
-
-        // 获取指定助航信息
-        getNavigationals: function getNavigationals() {
-            var _this3 = this;
-
-            this.params.pageNumber = 1;
-
-            if (this.params.typeId) {
-                this.params.types = [this.params.typeId];
-
-                Object(navigation["c" /* getNavigationals */])(this.params).then(function (res) {
-                    _this3.list = Object(types["d" /* isArray */])(res);
-
-                    _this3.refreshing = false;
-
-                    _this3.$toast.clear();
-                });
-            } else {
-                this.list = [];
-            }
-        },
-
-        /***
-         * 查询详情
-         */
-        handlerListItem: function handlerListItem(item) {
-            this.$router.push({
-                name: 'navigational-details',
-                params: {
-                    type: item.subType || item.typeId || this.$route.query.id || this.params.typeId,
-                    id: item.id
-                },
-                query: {
-                    typeId: item.typeId
+            Object(map["f" /* getAppCache */])().then(function (res) {
+                var size = void 0;
+                try {
+                    size = JSON.parse(res.toString()).cachesize;
+                } catch (e) {
+                    size = 0;
                 }
+
+                _this2.cacheSize = (Math.round(size / 1024 / 1024 * 100) / 100).toFixed(0);
             });
-        },
-
-        /***
-         * 动画
-         */
-        animation: function animation() {
-            var _this4 = this;
-
-            clearTimeout(this.timer);
-
-            var index = this.items.findIndex(function (item) {
-                return _this4.params.typeId === item.id;
-            });
-
-            if (index === -1) {
-                return;
-            }
-
-            var width = this.screen.width;
-            var max = this.styles.items.width - width;
-
-            var current = index * (width * 0.2) - width * 0.8 / 2;
-
-            if (current < 0) {
-                current = 0;
-            }
-
-            if (current > max) {
-                current = max;
-            }
-
-            this.styles.items.scrollLeft = -current;
-        },
-
-        /***
-         * 滚动动画
-         * @param event
-         */
-        onTouchstart: function onTouchstart(event) {
-            clearTimeout(this.timer);
-            this.$refs.items.style.transition = 'none';
-            this.scrollX = event.touches[0].pageX;
-        },
-        onTouchmove: function onTouchmove(event) {
-            var current = event.touches[0].pageX - this.scrollX + this.styles.items.scrollLeft;
-
-            var MAX = this.styles.items.width - this.styles.itemsWrapper.width;
-            var MIN = 0;
-
-            if (current > MIN) {
-                current = MIN;
-            }
-
-            if (current < -MAX) {
-                current = -MAX;
-            }
-
-            this.styles.items.scrollLeft = current;
-
-            this.scrollX = event.touches[0].pageX;
-        },
-        onTouchend: function onTouchend() {
-            this.$refs.items.style.transition = 'all 1s';
-            this.timer = setTimeout(this.animation, 2000);
         }
-    },
+    }, Object(vuex_esm["b" /* mapActions */])({
+        resetNovice: 'novice/resetNovice'
+    })),
     components: {
-        NoSuccess: no_success["a" /* default */],
+        MProgress: progress["a" /* default */],
         Navigate: navigate_navigate["a" /* default */]
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-1980840a","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/navigational/index.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"navigational"},[_c('navigate',{attrs:{"title":"助航信息","position":"absolute","color":"#fff","backgroundColor":"#3899D7"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('div',{ref:"itemsWrapper",staticClass:"items-wrapper",style:({maxHeight: _vm.styles.itemsWrapper.maxHeight + 'px'})},[_c('div',{ref:"items",staticClass:"items",style:({
-                            width: _vm.styles.items.width + 'px',
-                            transform: ("translate3d(" + (_vm.styles.items.scrollLeft) + "px, 0, 0)")
-                         }),on:{"touchstart":_vm.onTouchstart,"touchmove":_vm.onTouchmove,"touchend":_vm.onTouchend}},_vm._l((_vm.items),function(item,index){return _c('div',{ref:"item",refInFor:true,staticClass:"items-item",class:{'items-item-active': _vm.params.typeId === item.id},style:({width: _vm.styles.item.width + 'px'}),attrs:{"data-id":item.id},on:{"click":function($event){_vm.handlerNavigationItem(item.id)}}},[_c('img',{attrs:{"src":_vm._f("formatFind")(item.id,_vm.icons, 'value', 'typeId')}}),_vm._v(" "),_c('span',[_vm._v(_vm._s(item.name))])])}))]),_vm._v(" "),_c('transition',{attrs:{"name":"fade-shelter"}},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.params.typeId),expression:"params.typeId"}],staticClass:"search-box-wrapper"},[_c('div',{staticClass:"search-box border-1px"},[_c('mu-icon',{attrs:{"size":"22","value":"search","color":"#ccc"}}),_vm._v(" "),_c('mu-text-field',{staticClass:"demo-divider-form",attrs:{"placeholder":"请输入搜索内容","solo":"","full-width":""},model:{value:(_vm.params.name),callback:function ($$v) {_vm.$set(_vm.params, "name", $$v)},expression:"params.name"}})],1)])]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.params.typeId),expression:"params.typeId"}],ref:"content",staticClass:"content-wrapper"},[_c('mu-load-more',{directives:[{name:"show",rawName:"v-show",value:(_vm.list.length),expression:"list.length"}],attrs:{"refreshing":_vm.refreshing,"loading":_vm.loading},on:{"refresh":_vm.onRefresh,"load":_vm.load}},_vm._l((_vm.list),function(item,index){return _c('div',{key:item.id,staticClass:"search-list-item border-1px-b"},[_c('div',{staticClass:"info"},[_c('span',{staticClass:"badge"},[_vm._v("【"+_vm._s(item.typeName)+"】")]),_vm._v(_vm._s(item.name)+"\n                    ")]),_vm._v(" "),_c('mu-button',{staticClass:"button",attrs:{"color":"#6B9CF2","small":"","flat":""},on:{"click":function($event){_vm.handlerListItem(item)}}},[_vm._v("查看\n                    ")])],1)})),_vm._v(" "),_c('no-success',{directives:[{name:"show",rawName:"v-show",value:(!_vm.list.length),expression:"!list.length"}],attrs:{"text":"暂未查询到数据"}})],1)],1),_vm._v(" "),_c('transition',{staticClass:"views-left"},[_c('keep-alive',[_c('router-view',{staticClass:"views"})],1)],1)],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-4f4c2f0d","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/about/setter/index.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"setter"},[_c('navigate',{attrs:{"title":"设置","position":"absolute"}}),_vm._v(" "),_c('div',{staticClass:"scroll-wrapper"},[_c('mu-list',[_c('mu-list-item',{staticClass:"border-1px-b",attrs:{"to":"/about/setter/brightness","button":""}},[_c('mu-list-item-title',[_vm._v("屏幕亮度")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1),_vm._v(" "),_c('mu-list-item',{staticClass:"border-1px-b",attrs:{"to":"/about/setter/mode","button":""}},[_c('mu-list-item-title',[_vm._v("模式切换")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1),_vm._v(" "),_c('mu-list-item',{attrs:{"to":"/about/setter/notice","button":""}},[_c('mu-list-item-title',[_vm._v("消息通知")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1)],1),_vm._v(" "),_c('mu-list',[_c('mu-list-item',{staticClass:"list-item border-1px-b",attrs:{"to":"/about/setter/update","button":""}},[_c('mu-list-item-title',[_vm._v("检查更新")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1),_vm._v(" "),_c('mu-list-item',{staticClass:"list-item",attrs:{"button":""},on:{"click":_vm._initAppDefault}},[_c('mu-list-item-title',[_vm._v("清除缓存"),_c('span',{staticClass:"cache-size"},[_vm._v(_vm._s(_vm.cacheSize)+"M")])]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1)],1),_vm._v(" "),_c('mu-list',[_c('mu-list-item',{staticClass:"list-item border-1px-b",attrs:{"to":"/about/setter/related","button":""}},[_c('mu-list-item-title',[_vm._v("关于")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1),_vm._v(" "),_c('mu-list-item',{staticClass:"list-item border-1px-b",attrs:{"to":"/about/setter/help","button":""}},[_c('mu-list-item-title',[_vm._v("功能介绍")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1),_vm._v(" "),_c('mu-list-item',{staticClass:"list-item",attrs:{"to":"/controller","button":""},on:{"click":_vm.guideClick}},[_c('mu-list-item-title',[_vm._v("新手指引")]),_vm._v(" "),_c('mu-list-item-action',[_c('mu-icon',{attrs:{"value":"chevron_right"}})],1)],1)],1)],1),_vm._v(" "),_c('mu-dialog',{attrs:{"open":_vm.cacheView,"width":"80%","dialog-class":"dialog-style","esc-press-close":false,"overlay-close":false,"lock-scroll":""},on:{"close":_vm.dialogClose}},[_c('img',{staticStyle:{"display":"block","width":"90px","height":"90px","margin":"0 auto 10px"},attrs:{"src":_vm.cacheIcon}}),_vm._v(" "),_c('m-progress',{attrs:{"progress":_vm.progress}}),_vm._v(" "),_c('p',{staticStyle:{"padding-top":"20px","text-align":"center"}},[_vm._v("清除缓存中 ...")])],1),_vm._v(" "),_c('transition',{attrs:{"name":"views-left"}},[_c('keep-alive',[_c('router-view',{staticClass:"views"})],1)],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
-/* harmony default export */ var views_navigational = (esExports);
-// CONCATENATED MODULE: ./src/views/navigational/index.vue
+/* harmony default export */ var about_setter = (esExports);
+// CONCATENATED MODULE: ./src/views/about/setter/index.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("CL89")
+  __webpack_require__("EUNk")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -366,20 +377,27 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-1980840a"
+var __vue_scopeId__ = "data-v-4f4c2f0d"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
-  navigational,
-  views_navigational,
+  setter,
+  about_setter,
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
 
-/* harmony default export */ var src_views_navigational = __webpack_exports__["default"] = (Component.exports);
+/* harmony default export */ var views_about_setter = __webpack_exports__["default"] = (Component.exports);
 
+
+/***/ }),
+
+/***/ "EUNk":
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 

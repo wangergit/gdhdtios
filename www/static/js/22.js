@@ -1,63 +1,6 @@
 webpackJsonp([22],{
 
-/***/ "akCl":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* unused harmony export savePicture */
-/* harmony export (immutable) */ __webpack_exports__["b"] = getPictures;
-/* harmony export (immutable) */ __webpack_exports__["a"] = getBase64;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify__ = __webpack_require__("mvHQ");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise__ = __webpack_require__("//Fk");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise__);
-
-
-function savePicture() {
-    return new __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise___default.a(function (resolve, reject) {
-        if (window.ImagePicker && typeof window.ImagePicker.getPictures === 'function') {
-            return reject('无法打开相册');
-        }
-
-        window.ImagePicker.getPictures(function (result) {
-            resolve(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_json_stringify___default()(result));
-        }, reject);
-    });
-}
-
-function getPictures() {
-    var maxCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 9;
-    var defaultList = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-    return new __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise___default.a(function (resolve, reject) {
-        if (!window.MediaPicker || typeof window.MediaPicker.getMedias !== 'function') {
-            return reject('无法打开相册');
-        }
-
-        var options = {
-            'selectMode': 100, //101=picker image and video , 100=image , 102=video
-            'maxSelectCount': maxCount, //default 40 (Optional)
-            'maxSelectSize': 10485760, //10485760=10M (Optional)
-            'defaultSelectedList': defaultList
-        };
-
-        window.MediaPicker.getMedias(options, resolve, reject);
-    });
-}
-
-function getBase64(item) {
-    return new __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_promise___default.a(function (resolve, reject) {
-        if (!window.MediaPicker || typeof window.MediaPicker.extractThumbnail !== 'function') {
-            return reject('没有找到转换文件方法');
-        }
-
-        window.MediaPicker.extractThumbnail(item, resolve, reject);
-    });
-}
-
-/***/ }),
-
-/***/ "gbqE":
+/***/ "DdWT":
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
@@ -95,7 +38,7 @@ var image_preview_default = /*#__PURE__*/__webpack_require__.n(image_preview);
 // EXTERNAL MODULE: ./src/api/sys.js
 var sys = __webpack_require__("DEHg");
 
-// EXTERNAL MODULE: ./src/types/index.js + 3 modules
+// EXTERNAL MODULE: ./src/types/index.js + 5 modules
 var types = __webpack_require__("NaSR");
 
 // EXTERNAL MODULE: ./src/common/js/cordova/camera.js
@@ -225,14 +168,14 @@ var camera = __webpack_require__("akCl");
                                 _context.next = 5;
                                 return promise_default.a.all(_this2.images.map(function (item) {
                                     // return upload(item.file)
-                                    return Object(sys["e" /* uploadBase64 */])(item);
+                                    return Object(sys["f" /* uploadBase64 */])(item);
                                 }));
 
                             case 5:
                                 images = _context.sent;
 
 
-                                data.mediaPath = Object(types["d" /* isArray */])(images).join(';');
+                                data.mediaPath = Object(types["c" /* isArray */])(images).join(';');
 
                             case 7:
                                 _context.next = 9;
@@ -280,14 +223,14 @@ var camera = __webpack_require__("akCl");
         Navigate: navigate_navigate["a" /* default */]
     }
 });
-// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-28912f41","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/dynamic/issue.vue
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"dynamic-issue"},[_c('mu-appbar',{staticClass:"appbar",attrs:{"title":"发布动态"}},[_c('mu-button',{attrs:{"slot":"left","color":"#fff","icon":""},on:{"click":function($event){_vm.$router.back()}},slot:"left"},[_c('mu-icon',{attrs:{"value":"navigate_before"}})],1),_vm._v(" "),_c('mu-button',{attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":_vm.handlerSubmit},slot:"right"},[_vm._v("\n            发布\n        ")])],1),_vm._v(" "),_c('div',{staticClass:"dynamic-issue-content scroll-wrapper"},[_c('div',{staticClass:"input-wrapper border-1px-b"},[_c('mu-text-field',{attrs:{"placeholder":"分享新鲜事 ...","rows":5,"rows-max":8,"multi-line":"","full-width":"","solo":""},model:{value:(_vm.content),callback:function ($$v) {_vm.content=$$v},expression:"content"}})],1),_vm._v(" "),_c('div',{staticClass:"picture-wrapper"},[_vm._l((_vm.images),function(item,index){return _c('div',{key:index,staticClass:"picture",style:(("background-image: url(" + item + ")")),on:{"click":function($event){_vm.handlerBrowse(index)}}},[_c('mu-button',{attrs:{"color":"#f44336","small":"","icon":""},on:{"click":function($event){$event.stopPropagation();_vm.onDeletePicture(item, index)}}},[_c('mu-icon',{attrs:{"value":"delete"}})],1)],1)}),_vm._v(" "),(_vm.images.length < 9)?_c('mu-ripple',{staticClass:"picture border-1px",on:{"click":_vm.handlerPicture}},[_c('mu-icon',{staticClass:"append",attrs:{"value":"add","size":"50"}})],1):_vm._e()],2)])],1)}
+// CONCATENATED MODULE: ./node_modules/vue-loader/lib/template-compiler?{"id":"data-v-f8bf488a","hasScoped":true,"transformToRequire":{"video":["src","poster"],"source":"src","img":"src","image":"xlink:href"},"buble":{"transforms":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./src/views/dynamic/issue.vue
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"dynamic-issue"},[_c('mu-appbar',{staticClass:"appbar navigator",attrs:{"title":"发布动态"}},[_c('mu-button',{attrs:{"slot":"left","color":"#fff","icon":""},on:{"click":function($event){_vm.$router.back()}},slot:"left"},[_c('mu-icon',{attrs:{"value":"navigate_before"}})],1),_vm._v(" "),_c('mu-button',{attrs:{"slot":"right","color":"#fff","flat":""},on:{"click":_vm.handlerSubmit},slot:"right"},[_vm._v("\n            发布\n        ")])],1),_vm._v(" "),_c('div',{staticClass:"dynamic-issue-content scroll-wrapper"},[_c('div',{staticClass:"input-wrapper border-1px-b"},[_c('mu-text-field',{attrs:{"placeholder":"分享新鲜事 ...","rows":5,"rows-max":8,"multi-line":"","full-width":"","solo":""},model:{value:(_vm.content),callback:function ($$v) {_vm.content=$$v},expression:"content"}})],1),_vm._v(" "),_c('div',{staticClass:"picture-wrapper"},[_vm._l((_vm.images),function(item,index){return _c('div',{key:index,staticClass:"picture",style:(("background-image: url(" + item + ")")),on:{"click":function($event){_vm.handlerBrowse(index)}}},[_c('mu-button',{attrs:{"color":"#f44336","small":"","icon":""},on:{"click":function($event){$event.stopPropagation();_vm.onDeletePicture(item, index)}}},[_c('mu-icon',{attrs:{"value":"delete"}})],1)],1)}),_vm._v(" "),(_vm.images.length < 9)?_c('mu-ripple',{staticClass:"picture border-1px",on:{"click":_vm.handlerPicture}},[_c('mu-icon',{staticClass:"append",attrs:{"value":"add","size":"50"}})],1):_vm._e()],2)])],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ var dynamic_issue = (esExports);
 // CONCATENATED MODULE: ./src/views/dynamic/issue.vue
 function injectStyle (ssrContext) {
-  __webpack_require__("gbqE")
+  __webpack_require__("DdWT")
 }
 var normalizeComponent = __webpack_require__("VU/8")
 /* script */
@@ -300,7 +243,7 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-28912f41"
+var __vue_scopeId__ = "data-v-f8bf488a"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(

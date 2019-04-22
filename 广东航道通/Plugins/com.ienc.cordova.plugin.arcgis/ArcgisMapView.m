@@ -53,6 +53,7 @@
     // 将地图添加到最底层
     [self.viewController.view insertSubview:self.mapView atIndex:0];
     //[self.viewController.view addSubview:self.mapView];
+    [self.mapView setUserInteractionEnabled:YES];
 }
 
 /**
@@ -78,7 +79,6 @@
     self.vectorTargetLayer = [[AGSArcGISVectorTiledLayer alloc] initWithURL:[NSURL URLWithString:PATHTARGET]];
     [self.vectorTargetLayer setName:@"target"];
     [self.mapView.map.basemap.baseLayers insertObject:self.vectorTargetLayer atIndex:2];
-    
     
     self.mMapImageLayer = [[AGSArcGISMapImageLayer alloc] initWithURL:[NSURL URLWithString:FRAMESSERVERPATH]];
     //[mMapImageLayer setVisible:false];
@@ -640,24 +640,15 @@
  * @param callbackContext
  */
 -(void)getCentralPoint:(CDVInvokedUrlCommand*)command{
-    
     AGSEnvelope *extent = [self.mapView.visibleArea extent];
     NSNumber *x = [NSNumber numberWithDouble:[[extent center] x]];
     NSNumber *y = [NSNumber numberWithDouble:[[extent center] y]];
     
     NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:x,@"x",y,@"y", nil];
     [self convertToJsonData :centerPoint];
-    //    Map<String, Double> map = new HashMap<>();
-    //    try {
-    //        Double x = mapView.getVisibleArea().getExtent().getCenter().getX();
-    //        Double y = mapView.getVisibleArea().getExtent().getCenter().getY();
-    //        map.put("x", x);
-    //        map.put("y", y);
-    //        JSONObject object = new JSONObject(map);
-    //        callbackContext.success(object.toString());
-    //    } catch (Exception e) {
-    //        e.printStackTrace();
-    //    }
+    NSString * callbackId = command.callbackId;
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
 }
 
 -(NSString *)convertToJsonData:(NSDictionary *)dict{
@@ -697,6 +688,8 @@
     }
     return dic;
 }
+
+
 @end
 
 

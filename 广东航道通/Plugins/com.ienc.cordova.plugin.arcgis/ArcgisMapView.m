@@ -56,6 +56,27 @@
     [self.mapView setUserInteractionEnabled:YES];
 }
 
+
+/**
+ * 根据比例尺清除天气要素
+ *
+ * @param scale
+ */
+-(void) clearWeatherGraphics:(double) scale
+{
+    if (scale >= 1000000) {
+        if (self.mapScale < 1000000) {
+            [self.weatherOverlay.graphics removeAllObjects];
+        }
+    } else {
+        if (self.mapScale > 1000000) {
+            [self.weatherOverlay.graphics removeAllObjects];
+        }
+    }
+    self.mapScale = scale;
+}
+
+
 /**
  地图初始化
  */
@@ -739,7 +760,7 @@
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
     
 }
- 
+
 /**
  * 获取坐标点与当位置的 距离
  *

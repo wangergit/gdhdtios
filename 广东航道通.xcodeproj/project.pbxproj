@@ -60,6 +60,7 @@
 		D319489C2AA04779A4941DC1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A714DF86557425EB38764A0 /* libz.tbd */; settings = {ATTRIBUTES = (Weak, ); }; };
 		DC665CE7135F4B2F8ABD2503 /* zh-Hans.lproj in Resources */ = {isa = PBXBuildFile; fileRef = 6751AD84D2904C12BC18E713 /* zh-Hans.lproj */; };
 		DF9A266CB26F403F90B6FC79 /* CDVConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 49BAE95C48164FDB972CD277 /* CDVConnection.m */; };
+		E752AE0B226EB01500F249C5 /* constant in Resources */ = {isa = PBXBuildFile; fileRef = E752AE09226EB01500F249C5 /* constant */; };
 		E8C35B0B53DA45DE8267D13F /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F609ACAD8AB495DB332313A /* CFNetwork.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		ECA9E25533224CF2AB02608B /* DmcPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F0A30C4804EB4515BB75AD03 /* DmcPickerViewController.m */; };
 		EF52DD15E39245A1ABFD9911 /* ArcgisMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0394EE70D86148F7AF9EFB05 /* ArcgisMapView.m */; };
@@ -190,6 +191,7 @@
 		D9C161A593E54CA2A66FEC05 /* MediaPicker.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = MediaPicker.m; path = "cordova-plugin-mediapicker-dmcsdk/MediaPicker.m"; sourceTree = "<group>"; };
 		DA169CE33DB6435F9F4654C8 /* UIImage+CropScaleOrientation.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "UIImage+CropScaleOrientation.h"; path = "cordova-plugin-camera/UIImage+CropScaleOrientation.h"; sourceTree = "<group>"; };
 		DB86073B813B42FB8668F4A9 /* libresolv.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		E752AE09226EB01500F249C5 /* constant */ = {isa = PBXFileReference; lastKnownFileType = folder; path = constant; sourceTree = "<group>"; };
 		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		EC1B954F9FA8419694E84727 /* AVFoundation.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -256,6 +258,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				E752AE09226EB01500F249C5 /* constant */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				EB87FDF41871DAF40020F90C /* config.xml */,
 				301BF52D109A57CC0062928A /* CordovaLib/CordovaLib.xcodeproj */,
@@ -504,6 +507,7 @@
 			files = (
 				302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */,
 				0207DA581B56EA530066E2B4 /* Images.xcassets in Resources */,
+				E752AE0B226EB01500F249C5 /* constant in Resources */,
 				6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */,
 				464CBFA92A244141941EC15A /* CDVNotification.bundle in Resources */,
 				F0CAF722433F4882B7C467F7 /* dmcPicker.bundle in Resources */,

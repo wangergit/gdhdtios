@@ -623,7 +623,7 @@
     [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
     return mutStr;
 }
-
+  
 - (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString
 {
     if (jsonString == nil) {
@@ -640,6 +640,140 @@
     }
     return dic;
 }
+/**
+ 跳转到网络设置
+ */
+- (void)toNetWorkSetting:(CDVInvokedUrlCommand*)command
+{
+    @try{
+        //[self.mapView setViewpointScale:[self.mapView mapScale]* 0.5 completion:false];
+        //cordova.getActivity().startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
+        
+    } @catch (NSException *exception) {}
+    
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
+ * 地图缩放事件处理
+ * @param scale
+ */
+- (void) disposeMapScale:(double) scale
+{
+    //Double curScale = scale / 1000;
+    NSString *scaleText = @"";
+    double percentage = 0.0;
+    if(scale > 0 && scale <= 100){
+        scaleText = @"100米";
+        percentage = scale / 100;
+    }else if(scale > 100 && scale <= 200){
+        scaleText = @"200米";
+        percentage = (scale - 100) / 100;
+    }else if(scale > 200 && scale <= 500){
+        scaleText = @"500米";
+        percentage = (scale - 200) / (500 - 200);
+    }else if(scale > 500 && scale <= 1000){
+        scaleText = @"1公里";
+        percentage = (scale - 500) / (1000 - 500);
+    }else if(scale > 1000 && scale <= 2000){
+        scaleText = @"2公里";
+        percentage = (scale - 1000) / (2000 - 1000);
+    }else if(scale > 2000 && scale <= 5000){
+        scaleText = @"5公里";
+        percentage = (scale - 2000) / (5000 - 2000);
+    }else if(scale > 5000 && scale <= 10000){
+        scaleText = @"10公里";
+        percentage = (scale - 5000) / (10000 - 5000);
+    }else if(scale > 10000 && scale <= 20000){
+        scaleText = @"20公里";
+        percentage = (scale - 10000) / (20000 - 10000);
+    }else if(scale > 20000 && scale <= 50000){
+        scaleText = @"50公里";
+        percentage = (scale - 20000) / (50000 - 20000);
+    }else if(scale > 50000 && scale <= 100000){
+        scaleText = @"100公里";
+        percentage = (scale - 50000) / (100000 - 50000);
+    }else if(scale > 100000 && scale <= 200000){
+        scaleText = @"200公里";
+        percentage = (scale - 100000) / (200000 - 100000);
+    }else if(scale > 200000 && scale <= 500000){
+        scaleText = @"500公里";
+        percentage = (scale - 200000) / (500000 - 200000);
+    }else if(scale > 500000 && scale <= 1000000){
+        scaleText = @"1000公里";
+        percentage = (scale - 500000) / (1000000 - 500000);
+    }else if(scale > 1000000 && scale <= 2000000){
+        scaleText = @"2000公里";
+        percentage = (scale - 1000000) / (2000000 - 1000000);
+    }else if(scale > 2000000 && scale <= 5000000){
+        scaleText = @"5000公里";
+        percentage = (scale - 2000000) / (5000000 - 2000000);
+    }else if(scale > 5000000 && scale <= 10000000){
+        scaleText = @"10000公里";
+        percentage = (scale - 5000000) / (10000000 - 5000000);
+    }else if(scale > 10000000 && scale <= 20000000){
+        scaleText = @"20000公里";
+        percentage = (scale - 10000000) / (20000000 - 10000000);
+    }else if(scale > 20000000 && scale <= 50000000){
+        scaleText = @"50000公里";
+        percentage = (scale - 20000000) / (50000000 - 20000000);
+    }else if(scale > 50000000 && scale <= 100000000){
+        scaleText = @"100000公里";
+        percentage = (scale - 50000000) / (100000000 - 50000000);
+    }else if(scale > 100000000 && scale <= 200000000){
+        scaleText = @"200000公里";
+        percentage = (scale - 100000000) / (200000000 - 100000000);
+    }
+    
+    //比例尺显示
+    NSString *finalScaleText = scaleText;
+    double finalPercentage = percentage * 100;
+    NSString *sFinalPercentage = [NSString stringWithFormat:@"%f",finalPercentage];
+    UIWebView *uiWebView = (UIWebView*)self.webView;
+    
+    [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
+    
+    //[uiWebView stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
+    NSString *js = [@"javascript:window.$types.map.scale.transfer('" stringByAppendingFormat:@"%@,%@,%@,%@",finalScaleText,@"', '",sFinalPercentage,@"')"];
+    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+    
+}
+ 
+/**
+ * 获取坐标点与当位置的 距离
+ *
+ * @param x
+ * @param y
+ *
+ * @return
+ */
+-(double)  getLength:(double) x :(double)y
+{
+    double length = 0.0;
+    @try {
+        if (self.curPointX == 0 && self.curPointY == 0) {//未开启定位直接返回0处理
+            return length;
+        }
+
+        AGSPolylineBuilder *polylineBuilder = [[AGSPolylineBuilder
+                                                  alloc]initWithSpatialReference:[AGSSpatialReference WGS84]];
+        [polylineBuilder addPointWithX:x y:y];
+        [polylineBuilder addPointWithX:self.curPointX y:self.curPointY];
+
+        AGSPolyline *boatRoute = [polylineBuilder toGeometry];
+        AGSGeodeticCurveType geodeticCurveType = AGSGeodeticCurveTypeGeodesic;
+        AGSLinearUnit *unit =[AGSLinearUnit meters];
+        //[[AGSGeometryEngine geodeticLengthOfGeometry:<#(nonnull AGSGeometry *)#> lengthUnit:(nonnull AGSLinearUnit *) curveType:[AGSGeodeticCurveType AGSGeodeticCurveTypeGeodesic]];
+        length = [AGSGeometryEngine geodeticLengthOfGeometry:boatRoute lengthUnit:unit curveType:geodeticCurveType];
+        //lengthGeodetic(boatRoute, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GEODESIC);
+        return length;
+        
+    }
+    @catch (NSException *exception){}
+          
+}
+
 
 
 @end

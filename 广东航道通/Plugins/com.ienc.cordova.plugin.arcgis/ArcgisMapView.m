@@ -359,64 +359,33 @@
 -(void) centerTo:(double) x :(double) y :(double) scale :(Boolean) selection :(CDVInvokedUrlCommand*)command{
     NSString * callbackId = command.callbackId;
     //判断当前坐标是否在视图范围
-    //Envelope extent = mapView.getVisibleArea().getExtent();
     AGSEnvelope *extent = [self.tiledLayerBaseMap fullExtent];
     if (x < [extent xMin] || x > [extent xMax] || y < [extent yMin] || y > [extent yMax]) {
-        //callbackContext.error("当前坐标不在视图范围");
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"当前坐标不在视图范围"];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
         return;
     }
+    NSNumber *xP = [NSNumber numberWithDouble:x];
+    NSNumber *yP = [NSNumber numberWithDouble:y];
+    NSNumber *a = [NSNumber numberWithDouble:0.0];
+    NSNumber *w = [NSNumber numberWithDouble:45.0];
+    NSNumber *h = [NSNumber numberWithDouble:45.0];
+    NSNumber *offsetY = [NSNumber numberWithDouble:5.0];
     AGSPoint *point = [[AGSPoint alloc] initWithX:x y:y spatialReference:self.mapSpatialReference];
-    [self.mapView setViewpointCenter:point scale:scale completion:false];
     @try {
-        NSMutableDictionary *m ;
         if ((int) scale != 0) {
-            //[self.mapView setViewpointScale:scale completion:false];
+            [self.mapView setViewpointScale:scale completion:false];
             [self.mapView setViewpointCenter:point scale:scale completion:false];
-            //mhandle.removeCallbacks(timeRunable);
-            //mhandle.postDelayed(timeRunable, 1000);
             if (selection) {
-                //                NSDictionary *newDictionary=@{@"x":@1,@"age":@29};
-                //
-                //                NSDictionary *obj = [[NSDictionary alloc] initWithObjectsAndKeys:@x, @"key1", @"value2", @"key2",nil];
-                //                [m setObject:@x forKey:@"x"];
-                //                [NSMutableDictionary alloc] ini
-                //                my.put("x", x);
-                //                my.put("y", y);
-                //                my.put("a", 0.0);
-                //                my.put("w", 45.0);
-                //                my.put("h", 45.0);
-                //                my.put("offsetY", 5.0);
-                //                [self setExtentFrame:m :selectionOverlay :false];
+                NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:xP,@"x",yP,@"y",a,@"a",w,@"w",h,@"h",offsetY,@"offsetY", nil];
+                [self setExtentFrame:centerParam :self.selectionOverlay :false];
             }
-            //            if (callbackContext != null) {
-            //                callbackContext.success();
-            //                listenableFuture.removeDoneListener(this);
-            //            }
         } else {
-            //            ListenableFuture<Boolean> listenableFuture = mapView.setViewpointCenterAsync(point);
-            //            listenableFuture.addDoneListener(new Runnable() {
-            //                @Override
-            //                public void run() {
-            //                    mhandle.removeCallbacks(timeRunable);
-            //                    mhandle.postDelayed(timeRunable, 1000);
-            //                    if (selection) {
-            //                        Map<String, Double> my = new HashMap<>();
-            //                        my.put("x", x);
-            //                        my.put("y", y);
-            //                        my.put("a", 0.0);
-            //                        my.put("w", 45.0);
-            //                        my.put("h", 45.0);
-            //                        my.put("offsetY", 5.0);
-            //                        setExtentFrame(my, selectionOverlay, false);
-            //                    }
-            //                    if (callbackContext != null) {
-            //                        callbackContext.success();
-            //                        listenableFuture.removeDoneListener(this);
-            //                    }
-            //                }
-            //            });
+            [self.mapView setViewpointCenter:point completion:false];
+            if (selection) {
+                NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:xP,@"x",yP,@"y",a,@"a",w,@"w",h,@"h",offsetY,@"offsetY", nil];
+                [self setExtentFrame:centerParam :self.selectionOverlay :false];
+            }
         }
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
@@ -426,11 +395,42 @@
 }
 
 /**
+ * 添加选中的矩形框符号
+ * @param params
+ * @param layer
+ */
+-(void)setExtentFrame:(NSDictionary*)centerItem :(AGSGraphicsOverlay*)layer :(Boolean*)center{
+    @try {
+        [layer.graphics removeAllObjects];
+        if (![layer isVisible]) {
+            [layer setVisible:true];
+        }
+        AGSPictureMarkerSymbol *tempSymol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:self.extentFrameImg]];
+        [tempSymol loadWithCompletion:^(NSError * _Nullable error) {
+            [tempSymol setHeight:[[centerItem objectForKey:@"h"] doubleValue]];
+            [tempSymol setWidth:[[centerItem objectForKey:@"w"] doubleValue]];
+            [tempSymol setAngle:[[centerItem objectForKey:@"a"] doubleValue]];
+            [tempSymol setOffsetY:[[centerItem objectForKey:@"offsetY"] doubleValue]];
+            
+            AGSPoint *tcampsitePoint = [[AGSPoint alloc] initWithX:[[centerItem objectForKey:@"x"] doubleValue] y:[[centerItem objectForKey:@"y"] doubleValue] spatialReference:self.mapSpatialReference];
+            NSDictionary *s ;
+            AGSGraphic *campsiteGraphic = [[AGSGraphic alloc] initWithGeometry:tcampsitePoint symbol:tempSymol attributes:s];
+            [layer.graphics insertObject:campsiteGraphic atIndex:0];
+            if (center) {
+                [self centerTo:[[centerItem objectForKey:@"x"] doubleValue] :[[centerItem objectForKey:@"y"] doubleValue] :self.mapView.mapScale :false :NULL];
+            }
+        }];
+    } @catch (NSException *Exception) {
+        //[Exception out];
+    }
+}
+
+/**
  * 设置是否可可以操控
  * @param bool
  */
 -(void) setEnable:(CDVInvokedUrlCommand*)command{
-    BOOL *enable = [[command.arguments objectAtIndex:0] boolValue];
+    BOOL enable = [[command.arguments objectAtIndex:0] boolValue];
     self.mapEnable = enable;
     //[self.webView setUserInteractionEnabled:!enable];
     NSString * callbackId = command.callbackId;
@@ -444,51 +444,7 @@
 }
 
 /**
- * 添加选中的矩形框符号
- *
- * @param params
- * @param layer
- */
-//- (void) setExtentFrame(Map<String, Double> params, GraphicsOverlay layer, Boolean center) {
-//    try {
-//        layer.getGraphics().clear();
-//        if (!layer.isVisible()) {
-//            layer.setVisible(true);
-//        }
-//        //添加图片要素
-//        PictureMarkerSymbol tempSymol = null;
-//        try {
-//            InputStream is = this.cordova.getActivity().getAssets().open(extentFrameImg.toString());
-//            BitmapDrawable drawable = (BitmapDrawable) BitmapDrawable.createFromStream(is, null);
-//            tempSymol = new PictureMarkerSymbol(drawable);
-//        } catch (Exception e) {
-//        }
-//
-//        final PictureMarkerSymbol campsiteSymbol = tempSymol;
-//        campsiteSymbol.setHeight(params.get("h").intValue());
-//        campsiteSymbol.setWidth(params.get("w").intValue());
-//        campsiteSymbol.setAngle(params.get("a").intValue());//角度
-//        campsiteSymbol.setOffsetY(Float.valueOf(params.get("offsetY").toString()));
-//        campsiteSymbol.loadAsync();
-//        campsiteSymbol.addDoneLoadingListener(new Runnable() {
-//            @Override
-//            public void run() {
-//                Point campsitePoint = new Point(params.get("x"), params.get("y"), ArcgisUtils.getSpatialReferences());
-//                Graphic campsiteGraphic = new Graphic(campsitePoint, campsiteSymbol);
-//                layer.getGraphics().add(campsiteGraphic);
-//                if (center) {
-//                    centerTo(params.get("x"), params.get("y"), mapView.getMapScale(), false, null);
-//                }
-//            }
-//        });
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//}
-
-/**
  * 换主题模式 白天黑夜两个层只保留一个，一个加载成功后把另一个删除
- *
  * @param theme
  * @param callbackContext
  */
@@ -563,7 +519,7 @@
  */
 -(void) changeTieldLayerVisible:(CDVInvokedUrlCommand*)command {
     @try {
-        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        BOOL visible = [[command.arguments objectAtIndex:0] boolValue];
         if (self.tiledLayerBaseMap == NULL) {
             self.tiledLayerBaseMap = [[AGSArcGISTiledLayer alloc] initWithURL:[NSURL URLWithString:TILEDLAYERSERVICEURL]];
             [self.mapView.map.basemap.baseLayers insertObject:self.tiledLayerBaseMap atIndex:0];
@@ -591,11 +547,11 @@
  */
 -(void) changeChartLayerVisible:(CDVInvokedUrlCommand*)command {
     @try {
-        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        BOOL visible = [[command.arguments objectAtIndex:0] boolValue];
         if ([self.themeState isEqualToString:@"light"]) {
             if (self.vectorTiledLayer != NULL) {
                 [self.vectorTiledLayer setVisible:visible];
-            }  
+            }
         } else {
             if (self.nightVectorTiledLayer != NULL) {
                 [self.nightVectorTiledLayer setVisible:visible];
@@ -621,7 +577,7 @@
  */
 -(void) changeFramesServerState:(CDVInvokedUrlCommand*)command {
     @try {
-        BOOL *visible = [[command.arguments objectAtIndex:0] boolValue];
+        BOOL visible = [[command.arguments objectAtIndex:0] boolValue];
         if (self.mMapImageLayer == NULL) return;
         [self.mMapImageLayer setVisible:visible];
         NSString * callbackId = command.callbackId;
@@ -643,9 +599,7 @@
     AGSEnvelope *extent = [self.mapView.visibleArea extent];
     NSNumber *x = [NSNumber numberWithDouble:[[extent center] x]];
     NSNumber *y = [NSNumber numberWithDouble:[[extent center] y]];
-    
     NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:x,@"x",y,@"y", nil];
-    [self convertToJsonData :centerPoint];
     NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
     [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
@@ -675,14 +629,12 @@
     if (jsonString == nil) {
         return nil;
     }
-    
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *err;
     NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
                                                         options:NSJSONReadingMutableContainers
                                                           error:&err];
-    if(err)
-    {
+    if(err){
         NSLog(@"json解析失败：%@",err);
         return nil;
     }

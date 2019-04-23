@@ -1,6 +1,5 @@
 #import "ArcgisMapView.h"
 #import "Constant.h"
-//#import "NSDictionary22.h"
 #import <Cordova/CDVPluginResult.h>
 #import <ArcGIS/ArcGIS.h>
 
@@ -55,6 +54,27 @@
     //[self.viewController.view addSubview:self.mapView];
     [self.mapView setUserInteractionEnabled:YES];
 }
+
+
+/**
+ * 根据比例尺清除天气要素
+ *
+ * @param scale
+ */
+-(void) clearWeatherGraphics:(double) scale
+{
+    if (scale >= 1000000) {
+        if (self.mapScale < 1000000) {
+            [self.weatherOverlay.graphics removeAllObjects];
+        }
+    } else {
+        if (self.mapScale > 1000000) {
+            [self.weatherOverlay.graphics removeAllObjects];
+        }
+    }
+    self.mapScale = scale;
+}
+
 
 /**
  地图初始化
@@ -177,12 +197,15 @@
     
     self.mRouteSymbol = [[AGSSimpleLineSymbol alloc] initWithStyle:AGSSimpleLineSymbolStyleSolid color:[UIColor colorWithRed:34 green:139 blue:34 alpha:1.0] width:9.0];
     
-    //UIImage *image = [UIImage imageWithContentsOfFile: @"www/static/image/symbol/navigation_my_position.png"];
-    self.guideModelPictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:@"www/static/image/symbol/navigation_my_position.png"]];
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"www/static/image/symbol/navigation_my_position.png" ofType:nil];
+    UIImage* image = [[UIImage alloc] initWithContentsOfFile:filePath];
+    self.guideModelPictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImage:image];
     [self.guideModelPictureSymbol loadWithCompletion:^(NSError * _Nullable error) {
         [self.guideModelPictureSymbol setHeight:50];
         [self.guideModelPictureSymbol setWidth:50];
-        self.guideAnglePictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:@"www/static/image/symbol/navigation_direction.png"]];
+        NSString *filePath1 = [[NSBundle mainBundle] pathForResource:@"www/static/image/symbol/navigation_direction.png" ofType:nil];
+        UIImage* image1 = [[UIImage alloc] initWithContentsOfFile:filePath1];
+        self.guideAnglePictureSymbol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImage:image1];
         [self.guideAnglePictureSymbol loadWithCompletion:^(NSError * _Nullable error) {
             [self.guideAnglePictureSymbol setHeight:70];
             [self.guideAnglePictureSymbol setWidth:70];
@@ -405,7 +428,9 @@
         if (![layer isVisible]) {
             [layer setVisible:true];
         }
-        AGSPictureMarkerSymbol *tempSymol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithURL:[NSURL URLWithString:self.extentFrameImg]];
+        NSString *filePath = [[NSBundle mainBundle] pathForResource:self.extentFrameImg ofType:nil];
+        UIImage* image = [[UIImage alloc] initWithContentsOfFile:filePath];
+        AGSPictureMarkerSymbol *tempSymol  = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImage:image];
         [tempSymol loadWithCompletion:^(NSError * _Nullable error) {
             [tempSymol setHeight:[[centerItem objectForKey:@"h"] doubleValue]];
             [tempSymol setWidth:[[centerItem objectForKey:@"w"] doubleValue]];
@@ -470,7 +495,7 @@
             //basemap添加一个黑夜图层
             [self.mapView.map.basemap.baseLayers removeObjectAtIndex:index];
             [self.mapView.map.basemap.baseLayers insertObject:self.nightVectorTiledLayer atIndex:index];
-            [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1]];
+            [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0x44423E alpha:1]];
             //[self setEnable:true];
             //mapView.getBackgroundGrid().setColor(Color.TRANSPARENT);
         } else if([theme isEqualToString:@"light"]) {
@@ -480,7 +505,7 @@
             }
             [self.mapView.map.basemap.baseLayers removeObjectAtIndex:index];
             [self.mapView.map.basemap.baseLayers insertObject:self.vectorTiledLayer atIndex:index];
-            //mapView.getBackgroundGrid().setColor(Color.parseColor("#F4F3F0"));
+            [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1]];
             //[self setEnable:true];
         }
         NSString * callbackId = command.callbackId;
@@ -623,7 +648,7 @@
     [mutStr replaceOccurrencesOfString:@"\n" withString:@"" options:NSLiteralSearch range:range2];
     return mutStr;
 }
-  
+
 - (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString
 {
     if (jsonString == nil) {
@@ -739,7 +764,7 @@
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
     
 }
- 
+
 /**
  * 获取坐标点与当位置的 距离
  *

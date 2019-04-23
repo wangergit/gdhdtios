@@ -801,7 +801,7 @@
     double length = 0.0;
     @try {
         if (self.curPointX == 0 && self.curPointY == 0) {//未开启定位直接返回0处理
-            return length;
+            return length; 
         }
 
         AGSPolylineBuilder *polylineBuilder = [[AGSPolylineBuilder

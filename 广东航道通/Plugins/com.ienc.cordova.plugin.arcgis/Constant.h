@@ -36,7 +36,7 @@ NSString *MOBILE_5G = @"5G";
 
 
 
-//ssswwwww
+//ssseee
 //#import "NSDictionaryReadAdditions.h"
 
 //typedef NS_ENUM(NSUInteger, PODTYPE)

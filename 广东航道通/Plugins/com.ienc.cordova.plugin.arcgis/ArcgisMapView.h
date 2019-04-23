@@ -79,11 +79,14 @@
 @property double curPointX;
 @property double curPointY;
 
+@property (nonatomic, strong) NSTimer *timer;//定时器
+
+
 /**
  插件初始化回调函数
  */
 - (void)pluginInitialize;
-
+-(void) clearWeatherGraphics:(double) scale;
 /**
  获取版本
  

@@ -1,6 +1,7 @@
 #import <Cordova/CDVPlugin.h>
 #import <UIKit/UIKit.h>
 #import <ArcGIS/ArcGIS.h>
+#import "Utils.h"
 @interface ArcgisMapView :CDVPlugin
 //变量
 /**
@@ -89,6 +90,7 @@
  */
 - (void)pluginInitialize;
 -(void) clearWeatherGraphics:(double) scale;
+-(NSDictionary*) getMapViewExtent;
 /**
  获取版本
  

@@ -767,10 +767,8 @@
 
 /**
  * 获取坐标点与当位置的 距离
- *
  * @param x
  * @param y
- *
  * @return
  */
 -(double)  getLength:(double) x :(double)y
@@ -780,12 +778,10 @@
         if (self.curPointX == 0 && self.curPointY == 0) {//未开启定位直接返回0处理
             return length;
         }
-
         AGSPolylineBuilder *polylineBuilder = [[AGSPolylineBuilder
                                                   alloc]initWithSpatialReference:[AGSSpatialReference WGS84]];
         [polylineBuilder addPointWithX:x y:y];
         [polylineBuilder addPointWithX:self.curPointX y:self.curPointY];
-
         AGSPolyline *boatRoute = [polylineBuilder toGeometry];
         AGSGeodeticCurveType geodeticCurveType = AGSGeodeticCurveTypeGeodesic;
         AGSLinearUnit *unit =[AGSLinearUnit meters];
@@ -793,13 +789,18 @@
         length = [AGSGeometryEngine geodeticLengthOfGeometry:boatRoute lengthUnit:unit curveType:geodeticCurveType];
         //lengthGeodetic(boatRoute, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GEODESIC);
         return length;
-        
     }
     @catch (NSException *exception){}
-          
 }
 
-
+//地图设置显示隐藏
+-(void) setVisibility:(CDVInvokedUrlCommand*)command{
+    BOOL hidden = [[command.arguments objectAtIndex:0] boolValue];
+    [self.mapView setHidden:!hidden];
+    NSString * callbackId = command.callbackId;
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+}
 
 @end
 

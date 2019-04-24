@@ -511,6 +511,38 @@
         [self centerTo:x :y :10000 :false :command];
     }
 }
+
+/**
+ * 屏幕点转成地图上的点
+ *
+ * @param x
+ * @param y
+ *
+ * @return
+ */
+-(AGSPoint*) screenToLocation:(int) x : (int) y
+{
+    CGPoint screenP = CGPointMake(x,y);
+    AGSPoint *mapP = [self.mapView screenToLocation:screenP];
+    return mapP;
+}
+
+/**
+ * 地图上的点转成屏幕点
+ *
+ * @param x
+ * @param y
+ *
+ * @return
+ */
+-(CGPoint) locationToScreen:(double)mapx :(double) mapy
+{
+    AGSPoint *mapPoint = [AGSPoint pointWithX:mapx y:mapy spatialReference:self.mapView.spatialReference];
+    //[mapPoint release];
+    return [self.mapView locationToScreen:mapPoint];
+}
+
+
 /**
  * 定位到地图上的点及级别
  * @param x

@@ -44,6 +44,9 @@
     self.isMapCount = 0;
     self.curPointX = 0.0;
     self.curPointY = 0.0;
+    self.isPause = false;
+    self.currentSecond = 0.0;
+    //self.timer =
     
     [self initMap];
     
@@ -54,9 +57,148 @@
     [self.viewController.view insertSubview:self.mapView atIndex:0];
     //[self.viewController.view addSubview:self.mapView];
     [self.mapView setUserInteractionEnabled:YES];
+    //初始化线程
+    self.timerThread = [[NSThread alloc]initWithTarget:self selector:@selector(threadRun) object:nil];
+    
 }
 
+-(void)initTimer
+{
+    if(self.timer){
+        [self.timer invalidate];
+        self.timer =nil;
+    }
+    //时间间隔
+    NSTimeInterval timeInterval =1.0 ;
+    //定时器    repeats 表示是否需要重复，NO为只重复一次
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:timeInterval target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
+}
 
+- (void)addTimer
+{
+    if(!self.timer)
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+}
+
+-(void)removeTimer
+{
+    [self.timer invalidate];
+    self.timer =nil;
+}
+//关闭定时器
+-(void)pauseTimer
+{
+    [self.timer setFireDate:[NSDate distantFuture]];
+}
+
+//开启定时器
+-(void)startTimer
+{
+    [self.timer setFireDate:[NSDate distantPast]];
+}
+//定时器执行函数
+- (void)timer_callback:(NSTimer *)tempTimer {
+
+    
+}
+//新线程
+- (void)threadRun
+{
+    if (!self.isPause)
+    {
+        @try{
+            self.currentSecond = self.currentSecond + 1000;
+            if (self.currentSecond == 1000) {
+                NSDictionary *extent = [self getMapViewExten];
+                NSString *minx = [extent valueForKey:@"minx"];
+                NSString *maxx = [extent valueForKey:@"maxx"];;
+                NSString *miny = [extent valueForKey:@"miny"];;
+                NSString *maxy = [extent valueForKey:@"maxy"];
+                Boolean scale = self.mapView.mapScale <= self.layerMinScale;
+                UIWebView *uiWebView = (UIWebView*)self.webView;
+                if (scale) {
+                    //水位站
+                    if (self.waterStationOverlay.isVisible) {
+                        //[self performSelectorOnMainThread:@selector(refreshTableView) withObject:nil waitUntilDone:YES];
+                        NSString *js = [@"javascript:window.$types.map.search.water('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.water('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //标注
+                    if (self.markOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.label('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //船舶
+                    if (self.shipOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.boat('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //上报
+                    if (self.reportOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.report('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                }
+                if (self.mapView.mapScale <= 50000 && self.airworthinessOverlay.isVisible) {
+                    NSString *js = [@"javascript:window.$types.map.search.depth('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@",'true')"];
+                    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                    //webView.loadUrl("javascript:window.$types.map.search.depth('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' , '" + true + "')");
+                }
+                //天气请求
+                if (self.weatherOverlay.isVisible) {
+                    NSString *scale = [NSString stringWithFormat:@"%f",self.mapView.mapScale];
+                    NSString *js = [@"javascript:window.$types.map.search.weather('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"', '",scale,@",'true')"];
+                    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                    //webView.loadUrl("javascript:window.$types.map.search.weather('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' ," + mapView.getMapScale() + ")");
+                }
+                //地图选点接口触发
+                NSString *js =@"javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}";
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                //webView.loadUrl("javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}");
+                
+                self.isPause = false;
+                self.currentSecond = 0;
+            }
+        }@catch (NSException *exception) {}
+    }
+    
+}
+-(void) refreshMapLayers
+{
+    @try{
+        NSDictionary *extent = [self getMapViewExten];
+        NSString *minx = [extent valueForKey:@"minx"];
+        NSString *maxx = [extent valueForKey:@"maxx"];;
+        NSString *miny = [extent valueForKey:@"miny"];;
+        NSString *maxy = [extent valueForKey:@"maxy"];
+        Boolean scale = self.mapView.mapScale <= self.layerMinScale;
+        UIWebView *uiWebView = (UIWebView*)self.webView;
+        if (scale) {
+            //标注
+            if (self.markOverlay.isVisible) {
+                NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            }
+            //船舶
+            //if (self.shipOverlay.isVisible) {
+                //NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                //[uiWebView stringByEvaluatingJavaScriptFromString:js ];
+              
+            //}
+            //上报
+            if (self.reportOverlay.isVisible) {
+                NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            }
+            
+        }
+    }@catch (NSException *exception) {}
+}
 /**
  * 根据比例尺清除天气要素
  *
@@ -760,6 +902,26 @@
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
     
 }
+/**
+ * 航标图层点击查询
+ * @param identifyLayerResults
+ */
+-(void) handleIdentifyResult:(AGSIdentifyLayerResult*) identifyLayerResults
+{
+    @try {
+        if(identifyLayerResults == [NSNull null]){
+            [self.selectionOverlay.graphics removeAllObjects];
+        }
+        
+    }@catch (NSException *exception){}
+}
+
+
+-(void)refreshUI:(NSString*)js
+{
+    
+}
+
 
 /**
  * 获取坐标点与当位置的 距离
@@ -795,8 +957,16 @@
           
 }
 
-
-
+//获取地图当前范围参数
+-(NSDictionary*) getMapViewExten
+{
+    NSNumber *minX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMin];
+    NSNumber *maxX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMax];
+    NSNumber *minY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMin];
+    NSNumber *maxY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMax];
+    NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
+    return mapExtentDic;
+}
 @end
 
 

@@ -995,14 +995,15 @@
 }
 
 //获取地图当前范围参数
--(NSDictionary*) getMapViewExten
+-(void) getMapViewExten:(CDVInvokedUrlCommand*) command
 {
-    NSNumber *minX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMin];
-    NSNumber *maxX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMax];
-    NSNumber *minY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMin];
-    NSNumber *maxY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMax];
-    NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
-    return mapExtentDic;
+    NSNumber *xMin = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMin];
+    NSNumber *xMax = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMax];
+    NSNumber *yMin = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.yMin];
+    NSNumber *yMax = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.yMax];
+    NSArray *mapExtent = [[NSArray alloc] initWithObjects:xMin,xMax,yMin,yMax, nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [mapExtent componentsJoinedByString:@","]];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 /**

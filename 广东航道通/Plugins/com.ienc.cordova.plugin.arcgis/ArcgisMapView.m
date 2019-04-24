@@ -109,10 +109,10 @@
         @try{
             self.currentSecond = self.currentSecond + 1000;
             if (self.currentSecond == 1000) {
-                NSDictionary *extent = [self getMapViewExten];
+                NSDictionary *extent = [self getMapViewExtent];
                 NSString *minx = [extent valueForKey:@"minx"];
-                NSString *maxx = [extent valueForKey:@"maxx"];;
-                NSString *miny = [extent valueForKey:@"miny"];;
+                NSString *maxx = [extent valueForKey:@"maxx"];
+                NSString *miny = [extent valueForKey:@"miny"];
                 NSString *maxy = [extent valueForKey:@"maxy"];
                 Boolean scale = self.mapView.mapScale <= self.layerMinScale;
                 UIWebView *uiWebView = (UIWebView*)self.webView;
@@ -170,10 +170,10 @@
 -(void) refreshMapLayers
 {
     @try{
-        NSDictionary *extent = [self getMapViewExten];
+        NSDictionary *extent = [self getMapViewExtent];
         NSString *minx = [extent valueForKey:@"minx"];
-        NSString *maxx = [extent valueForKey:@"maxx"];;
-        NSString *miny = [extent valueForKey:@"miny"];;
+        NSString *maxx = [extent valueForKey:@"maxx"];
+        NSString *miny = [extent valueForKey:@"miny"];
         NSString *maxy = [extent valueForKey:@"maxy"];
         Boolean scale = self.mapView.mapScale <= self.layerMinScale;
         UIWebView *uiWebView = (UIWebView*)self.webView;
@@ -638,7 +638,7 @@
 }
 
 - (void)mapView:(AGSMapView *)mapView didTapAtPoint:(CGPoint)screen mapPoint:(nonnull
-                                                                              AGSPoint *)mappoint features:(NSDictionary *)features {
+    AGSPoint *)mappoint features:(NSDictionary *)features {
     NSLog(@"User tapped on the map at %f,%f", mappoint.x, mappoint.y);
 }
 
@@ -947,9 +947,90 @@
     @try {
         if(identifyLayerResults == [NSNull null]){
             [self.selectionOverlay.graphics removeAllObjects];
+            UIWebView *uiWebView = (UIWebView*)self.webView;
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            return;
+        }
+        AGSIdentifyLayerResult *identifyResult =[identifyLayerResults.sublayerResults firstObject];
+        NSString *layerName = identifyResult.layerContent.name;
+        AGSGeometry *geom = [[identifyResult.geoElements firstObject] geometry];
+        double x = geom.extent.center.x;
+        double y = geom.extent.center.y;
+        NSMutableDictionary< NSString *, id > *attrDic =[[identifyResult.geoElements firstObject] attributes];
+        NSString *type = @"";
+        if ([layerName isEqualToString: @"航行标志"]) {
+            type = @"030001";
+        } else if ([layerName isEqualToString: @"提示标志"]) {
+            type = @"030002";
+        } else if ([layerName isEqualToString: @"信号标志"]) {
+            type = @"030003";
+        } else if ([layerName isEqualToString: @"专用标志"]) {
+            type = @"030004";
+        } else if([layerName isEqualToString: @"桥梁"]){
+            type = @"013002";
+        } else if([layerName isEqualToString: @"船闸"]){
+            type = @"013005";
+        }
+        else if([layerName isEqualToString: @"架空线缆"]){
+            type = @"013018";
+        }
+        else if([layerName isEqualToString: @"过河线缆"]){
+            type = @"013016";
+        }
+        else if([layerName isEqualToString: @"过河管道"]){
+            type = @"013017";
+        }
+        else {
+            //webView.loadUrl("javascript:window.$types.map.element.close()");
+            //[self.selectionOverlay]
+            UIWebView *uiWebView = (UIWebView*)self.webView;
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            [self.selectionOverlay.graphics removeAllObjects];
+            return;
+        }
+        NSRange range=[layerName rangeOfString:@"标志"];
+        if(range.location!=NSNotFound){
+            [attrDic setValue:AIDSNAVIGATION_CODE forKey:@"typeId"];
+            
+            NSString *litchr = [attrDic valueForKey:@"LITCHR"];
+            BOOL isBlank = [Utils isBlankString:litchr];
+            if(isBlank)
+                [attrDic setValue:@"" forKey:@"lightCharacter"];
+            else
+                [attrDic setValue:litchr forKey:@"lightCharacter"];
+        }
+        else{
+            [attrDic setValue:type forKey:@"typeId"];
         }
         
-    }@catch (NSException *exception){}
+        
+        
+        [attrDic setValue:[attrDic  valueForKey:@"OBJECTID"] forKey:@"id"];
+        [attrDic setValue:layerName forKey:@"type"];
+        [attrDic setValue:[attrDic  valueForKey:@"NOBJNM"] forKey:@"name"];
+        [attrDic setValue:[NSString stringWithFormat:@"%.4f",x] forKey:@"longitude"];
+        [attrDic setValue:[NSString stringWithFormat:@"%.4f",y] forKey:@"latitude"];
+        [attrDic setValue:[NSNumber numberWithDouble:[self getLength:x :y]] forKey:@"distance"];
+        
+        NSString *resultJson = [Utils jsonStrConvertByObject:attrDic];
+        
+        NSNumber *numX = [NSNumber numberWithDouble:x];
+        NSNumber *numY = [NSNumber numberWithDouble:y];
+        NSNumber *numA = [NSNumber numberWithDouble:0.0];
+        NSNumber *numW = [NSNumber numberWithDouble:40.0];
+        NSNumber *numH = [NSNumber numberWithDouble:40.0];
+        NSNumber *numOffsetY = [NSNumber numberWithDouble:10.0];
+        NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:numX,@"x",numY,@"y",numA,@"a",numW,@"w",numH,@"h",numOffsetY,@"offsetY", nil];
+        [self setExtentFrame:centerParam :self.selectionOverlay :false];
+        
+        NSString *js = [@"javascript:window.$types.map.element.click('" stringByAppendingFormat:@"%@,%@,%@,%@",@"1", @"', '", resultJson, @"')"];
+        UIWebView *uiWebView = (UIWebView*)self.webView;
+        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+
+        
+    }@catch (NSException *exception){
+        
+    }
 }
 
 
@@ -997,7 +1078,7 @@
 }
 
 //获取地图当前范围参数
--(NSDictionary*) getMapViewExten
+-(NSDictionary*) getMapViewExtent
 {
     NSNumber *minX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMin];
     NSNumber *maxX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMax];

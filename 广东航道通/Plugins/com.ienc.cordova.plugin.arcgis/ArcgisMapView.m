@@ -421,6 +421,16 @@
 }
 
 /**
+ 设置放缩
+ @param command command description
+ */
+-(void) setScale:(CDVInvokedUrlCommand*)command{
+    [self.mapView setViewpointScale:[[command.arguments objectAtIndex:0] boolValue] completion:false];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"setScale"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  放缩
  @param command command description
  */
@@ -464,23 +474,20 @@
 
 - (void)getAppName : (CDVInvokedUrlCommand *)command
 {
-    NSString * callbackId = command.callbackId;
     NSString * version =[[[NSBundle mainBundle]infoDictionary]objectForKey :@"CFBundleDisplayName"];
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : version];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 - (void)getPackageName:(CDVInvokedUrlCommand*)command
 {
-    NSString* callbackId = command.callbackId;
     NSString* packageName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:packageName];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)getVersionNumber:(CDVInvokedUrlCommand*)command
 {
-    NSString* callbackId = command.callbackId;
     NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     if (version == nil) {
         NSLog(@"CFBundleShortVersionString was nil, attempting CFBundleVersion");
@@ -491,7 +498,7 @@
         }
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:version];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 /**
  * 定位到地图上的点,同时设置放缩
@@ -516,34 +523,37 @@
 
 /**
  * 屏幕点转成地图上的点
- *
  * @param x
  * @param y
- *
  * @return
  */
--(AGSPoint*) screenToLocation:(int) x : (int) y
+-(void) screenToLocation:(CDVInvokedUrlCommand*)command
 {
+    double x = [[command.arguments objectAtIndex:0] doubleValue];
+    double y = [[command.arguments objectAtIndex:1] doubleValue];
     CGPoint screenP = CGPointMake(x,y);
     AGSPoint *mapP = [self.mapView screenToLocation:screenP];
-    return mapP;
+    NSDictionary *par = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:mapP.x],@"x",[NSNumber numberWithDouble:mapP.y],@"y", nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsDictionary:par];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 /**
  * 地图上的点转成屏幕点
- *
  * @param x
  * @param y
- *
  * @return
  */
--(CGPoint) locationToScreen:(double)mapx :(double) mapy
+-(void) locationToScreen:(CDVInvokedUrlCommand*)command
 {
-    AGSPoint *mapPoint = [AGSPoint pointWithX:mapx y:mapy spatialReference:self.mapView.spatialReference];
-    //[mapPoint release];
-    return [self.mapView locationToScreen:mapPoint];
+    double x = [[command.arguments objectAtIndex:0] doubleValue];
+    double y = [[command.arguments objectAtIndex:1] doubleValue];
+    AGSPoint *mapPoint = [AGSPoint pointWithX:x y:y spatialReference:self.mapView.spatialReference];
+    CGPoint screenP = [self.mapView locationToScreen:mapPoint];
+    NSDictionary *par = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:screenP.x],@"x",[NSNumber numberWithDouble:screenP.y],@"y", nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsDictionary:par];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
-
 
 /**
  * 定位到地图上的点及级别
@@ -554,12 +564,11 @@
  * @param callbackContext
  */
 -(void) centerTo:(double) x :(double) y :(double) scale :(Boolean) selection :(CDVInvokedUrlCommand*)command{
-    NSString * callbackId = command.callbackId;
     //判断当前坐标是否在视图范围
     AGSEnvelope *extent = [self.tiledLayerBaseMap fullExtent];
     if (x < [extent xMin] || x > [extent xMax] || y < [extent yMin] || y > [extent yMax]) {
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"当前坐标不在视图范围"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
         return;
     }
     NSNumber *xP = [NSNumber numberWithDouble:x];
@@ -585,7 +594,7 @@
             }
         }
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         
     }
@@ -632,9 +641,8 @@
     BOOL enable = [[command.arguments objectAtIndex:0] boolValue];
     self.mapEnable = enable;
     //[self.webView setUserInteractionEnabled:!enable];
-    NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 - (void)mapView:(AGSMapView *)mapView didTapAtPoint:(CGPoint)screen mapPoint:(nonnull
@@ -682,14 +690,12 @@
             [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1]];
             //[self setEnable:true];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch(NSException *exception){
         NSLog(@"changeTheme  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -728,14 +734,12 @@
         } else {
             [self.nightTiledLayerBaseMap setVisible:visible];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeTieldLayerVisible OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         NSLog(@"changeTieldLayerVisible  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -759,14 +763,12 @@
         if (self.labelMapImageLayer != NULL) {
             [self.labelMapImageLayer setVisible:visible];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeChartLayerVisible OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         NSLog(@"changeChartLayerVisible  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"changeChartLayerVisible  ERROR"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -779,14 +781,12 @@
         BOOL visible = [[command.arguments objectAtIndex:0] boolValue];
         if (self.mMapImageLayer == NULL) return;
         [self.mMapImageLayer setVisible:visible];
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeFramesServerState OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception)  {
         NSLog(@"changeFramesServerState  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -799,9 +799,8 @@
     NSNumber *x = [NSNumber numberWithDouble:[[extent center] x]];
     NSNumber *y = [NSNumber numberWithDouble:[[extent center] y]];
     NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:x,@"x",y,@"y", nil];
-    NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 -(NSString *)convertToJsonData:(NSDictionary *)dict{
@@ -991,9 +990,8 @@
 -(void) setVisibility:(CDVInvokedUrlCommand*)command{
     BOOL hidden = [[command.arguments objectAtIndex:0] boolValue];
     [self.mapView setHidden:!hidden];
-    NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 //获取地图当前范围参数
@@ -1006,6 +1004,7 @@
     NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
     return mapExtentDic;
 }
+
 @end
 
 

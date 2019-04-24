@@ -1005,6 +1005,41 @@
     return mapExtentDic;
 }
 
+/**
+ * 路径规划中  地图选点的定位接口
+ * @param callbackContext
+ */
+-(void) getSelectCenter:(CDVInvokedUrlCommand *) command{
+    @try {
+        AGSEnvelope *extent = [self.mapView.visibleArea extent];
+        double x = [[extent center] x];
+        double y = [[extent center] y];
+        double centerY = [[extent center] y];
+        double miny = extent.yMin;
+        double many = extent.yMax;
+        centerY = centerY - (many - miny) * 0.09;
+        AGSPoint *point = [[AGSPoint alloc] initWithX:x y:y spatialReference:[self.mapView spatialReference]];
+        [self.mapView setViewpointCenter:point scale:[self.mapView mapScale] completion:false];
+        NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x],@"x",[NSNumber numberWithDouble:centerY],@"y", nil];
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    } @catch (NSException *e) {
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    }
+}
+
+/**
+ * 切换助航视角状态
+ * @param string
+ * @param callbackContext
+ */
+-(void) changeNavigationType:(CDVInvokedUrlCommand*)command{
+    self.guideModelType = [[command.arguments objectAtIndex:0] stringValue];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeNavigationType"];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
+
 @end
 
 

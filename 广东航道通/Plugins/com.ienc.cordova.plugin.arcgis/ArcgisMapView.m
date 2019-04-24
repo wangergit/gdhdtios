@@ -109,7 +109,7 @@
         @try{
             self.currentSecond = self.currentSecond + 1000;
             if (self.currentSecond == 1000) {
-                NSDictionary *extent = [self getMapViewExten];
+                NSDictionary *extent = [self getMapViewExtent];
                 NSString *minx = [extent valueForKey:@"minx"];
                 NSString *maxx = [extent valueForKey:@"maxx"];;
                 NSString *miny = [extent valueForKey:@"miny"];;
@@ -170,7 +170,7 @@
 -(void) refreshMapLayers
 {
     @try{
-        NSDictionary *extent = [self getMapViewExten];
+        NSDictionary *extent = [self getMapViewExtent];
         NSString *minx = [extent valueForKey:@"minx"];
         NSString *maxx = [extent valueForKey:@"maxx"];;
         NSString *miny = [extent valueForKey:@"miny"];;
@@ -995,7 +995,7 @@
 }
 
 //获取地图当前范围参数
--(void) getMapViewExten:(CDVInvokedUrlCommand*) command
+-(void) getMapExtent:(CDVInvokedUrlCommand*) command
 {
     NSNumber *xMin = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMin];
     NSNumber *xMax = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMax];
@@ -1041,6 +1041,15 @@
     [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
+-(NSDictionary*) getMapViewExtent
+{
+    NSNumber *minX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMin];
+    NSNumber *maxX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMax];
+    NSNumber *minY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMin];
+    NSNumber *maxY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMax];
+    NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
+    return mapExtentDic;
+}
 @end
 
 

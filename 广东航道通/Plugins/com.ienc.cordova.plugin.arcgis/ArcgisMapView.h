@@ -2,7 +2,7 @@
 #import <UIKit/UIKit.h>
 #import <ArcGIS/ArcGIS.h>
 #import "Utils.h"
-@interface ArcgisMapView :CDVPlugin
+@interface ArcgisMapView :CDVPlugin <AGSGeoViewTouchDelegate>
 //变量
 /**
  地图view变量
@@ -85,6 +85,8 @@
 @property NSInteger currentSecond;//当前毫秒数
 @property (nonatomic,strong)NSThread *timerThread;
 @property (nonatomic,strong)NSThread *navMapThread;
+@property (nonatomic,strong)NSThread *aisThread;//
+
 /**
  插件初始化回调函数
  */

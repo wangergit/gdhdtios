@@ -43,6 +43,9 @@
     self.isMapCount = 0;
     self.curPointX = 0.0;
     self.curPointY = 0.0;
+    self.isPause = false;
+    self.currentSecond = 0.0;
+    //self.timer =
     
     [self initMap];
     
@@ -53,9 +56,148 @@
     [self.viewController.view insertSubview:self.mapView atIndex:0];
     //[self.viewController.view addSubview:self.mapView];
     [self.mapView setUserInteractionEnabled:YES];
+    //初始化线程
+    self.timerThread = [[NSThread alloc]initWithTarget:self selector:@selector(threadRun) object:nil];
+    
 }
 
+-(void)initTimer
+{
+    if(self.timer){
+        [self.timer invalidate];
+        self.timer =nil;
+    }
+    //时间间隔
+    NSTimeInterval timeInterval =1.0 ;
+    //定时器    repeats 表示是否需要重复，NO为只重复一次
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:timeInterval target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
+}
 
+- (void)addTimer
+{
+    if(!self.timer)
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+}
+
+-(void)removeTimer
+{
+    [self.timer invalidate];
+    self.timer =nil;
+}
+//关闭定时器
+-(void)pauseTimer
+{
+    [self.timer setFireDate:[NSDate distantFuture]];
+}
+
+//开启定时器
+-(void)startTimer
+{
+    [self.timer setFireDate:[NSDate distantPast]];
+}
+//定时器执行函数
+- (void)timer_callback:(NSTimer *)tempTimer {
+
+    
+}
+//新线程
+- (void)threadRun
+{
+    if (!self.isPause)
+    {
+        @try{
+            self.currentSecond = self.currentSecond + 1000;
+            if (self.currentSecond == 1000) {
+                NSDictionary *extent = [self getMapViewExtent];
+                NSString *minx = [extent valueForKey:@"minx"];
+                NSString *maxx = [extent valueForKey:@"maxx"];
+                NSString *miny = [extent valueForKey:@"miny"];
+                NSString *maxy = [extent valueForKey:@"maxy"];
+                Boolean scale = self.mapView.mapScale <= self.layerMinScale;
+                UIWebView *uiWebView = (UIWebView*)self.webView;
+                if (scale) {
+                    //水位站
+                    if (self.waterStationOverlay.isVisible) {
+                        //[self performSelectorOnMainThread:@selector(refreshTableView) withObject:nil waitUntilDone:YES];
+                        NSString *js = [@"javascript:window.$types.map.search.water('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.water('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //标注
+                    if (self.markOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.label('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //船舶
+                    if (self.shipOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.boat('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                    //上报
+                    if (self.reportOverlay.isVisible) {
+                        NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                        //webView.loadUrl("javascript:window.$types.map.search.report('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
+                    }
+                }
+                if (self.mapView.mapScale <= 50000 && self.airworthinessOverlay.isVisible) {
+                    NSString *js = [@"javascript:window.$types.map.search.depth('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@",'true')"];
+                    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                    //webView.loadUrl("javascript:window.$types.map.search.depth('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' , '" + true + "')");
+                }
+                //天气请求
+                if (self.weatherOverlay.isVisible) {
+                    NSString *scale = [NSString stringWithFormat:@"%f",self.mapView.mapScale];
+                    NSString *js = [@"javascript:window.$types.map.search.weather('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"', '",scale,@",'true')"];
+                    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                    //webView.loadUrl("javascript:window.$types.map.search.weather('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' ," + mapView.getMapScale() + ")");
+                }
+                //地图选点接口触发
+                NSString *js =@"javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}";
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+                //webView.loadUrl("javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}");
+                
+                self.isPause = false;
+                self.currentSecond = 0;
+            }
+        }@catch (NSException *exception) {}
+    }
+    
+}
+-(void) refreshMapLayers
+{
+    @try{
+        NSDictionary *extent = [self getMapViewExtent];
+        NSString *minx = [extent valueForKey:@"minx"];
+        NSString *maxx = [extent valueForKey:@"maxx"];
+        NSString *miny = [extent valueForKey:@"miny"];
+        NSString *maxy = [extent valueForKey:@"maxy"];
+        Boolean scale = self.mapView.mapScale <= self.layerMinScale;
+        UIWebView *uiWebView = (UIWebView*)self.webView;
+        if (scale) {
+            //标注
+            if (self.markOverlay.isVisible) {
+                NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            }
+            //船舶
+            //if (self.shipOverlay.isVisible) {
+                //NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                //[uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            
+            //}
+            //上报
+            if (self.reportOverlay.isVisible) {
+                NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            }
+            
+        }
+    }@catch (NSException *exception) {}
+}
 /**
  * 根据比例尺清除天气要素
  *
@@ -279,6 +421,16 @@
 }
 
 /**
+ 设置放缩
+ @param command command description
+ */
+-(void) setScale:(CDVInvokedUrlCommand*)command{
+    [self.mapView setViewpointScale:[[command.arguments objectAtIndex:0] boolValue] completion:false];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"setScale"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+/**
  放缩
  @param command command description
  */
@@ -322,23 +474,20 @@
 
 - (void)getAppName : (CDVInvokedUrlCommand *)command
 {
-    NSString * callbackId = command.callbackId;
     NSString * version =[[[NSBundle mainBundle]infoDictionary]objectForKey :@"CFBundleDisplayName"];
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : version];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 - (void)getPackageName:(CDVInvokedUrlCommand*)command
 {
-    NSString* callbackId = command.callbackId;
     NSString* packageName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:packageName];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)getVersionNumber:(CDVInvokedUrlCommand*)command
 {
-    NSString* callbackId = command.callbackId;
     NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     if (version == nil) {
         NSLog(@"CFBundleShortVersionString was nil, attempting CFBundleVersion");
@@ -349,7 +498,7 @@
         }
     }
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:version];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 /**
  * 定位到地图上的点,同时设置放缩
@@ -371,6 +520,41 @@
         [self centerTo:x :y :10000 :false :command];
     }
 }
+
+/**
+ * 屏幕点转成地图上的点
+ * @param x
+ * @param y
+ * @return
+ */
+-(void) screenToLocation:(CDVInvokedUrlCommand*)command
+{
+    double x = [[command.arguments objectAtIndex:0] doubleValue];
+    double y = [[command.arguments objectAtIndex:1] doubleValue];
+    CGPoint screenP = CGPointMake(x,y);
+    AGSPoint *mapP = [self.mapView screenToLocation:screenP];
+    NSDictionary *par = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:mapP.x],@"x",[NSNumber numberWithDouble:mapP.y],@"y", nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsDictionary:par];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
+
+/**
+ * 地图上的点转成屏幕点
+ * @param x
+ * @param y
+ * @return
+ */
+-(void) locationToScreen:(CDVInvokedUrlCommand*)command
+{
+    double x = [[command.arguments objectAtIndex:0] doubleValue];
+    double y = [[command.arguments objectAtIndex:1] doubleValue];
+    AGSPoint *mapPoint = [AGSPoint pointWithX:x y:y spatialReference:self.mapView.spatialReference];
+    CGPoint screenP = [self.mapView locationToScreen:mapPoint];
+    NSDictionary *par = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:screenP.x],@"x",[NSNumber numberWithDouble:screenP.y],@"y", nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsDictionary:par];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
+
 /**
  * 定位到地图上的点及级别
  * @param x
@@ -380,12 +564,11 @@
  * @param callbackContext
  */
 -(void) centerTo:(double) x :(double) y :(double) scale :(Boolean) selection :(CDVInvokedUrlCommand*)command{
-    NSString * callbackId = command.callbackId;
     //判断当前坐标是否在视图范围
     AGSEnvelope *extent = [self.tiledLayerBaseMap fullExtent];
     if (x < [extent xMin] || x > [extent xMax] || y < [extent yMin] || y > [extent yMax]) {
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"当前坐标不在视图范围"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
         return;
     }
     NSNumber *xP = [NSNumber numberWithDouble:x];
@@ -411,7 +594,7 @@
             }
         }
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         
     }
@@ -458,13 +641,12 @@
     BOOL enable = [[command.arguments objectAtIndex:0] boolValue];
     self.mapEnable = enable;
     //[self.webView setUserInteractionEnabled:!enable];
-    NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 - (void)mapView:(AGSMapView *)mapView didTapAtPoint:(CGPoint)screen mapPoint:(nonnull
-                                                                              AGSPoint *)mappoint features:(NSDictionary *)features {
+    AGSPoint *)mappoint features:(NSDictionary *)features {
     NSLog(@"User tapped on the map at %f,%f", mappoint.x, mappoint.y);
 }
 
@@ -508,14 +690,12 @@
             [self.mapView.backgroundGrid setColor:[ArcgisMapView colorWithRGB:0xF4F3F0 alpha:1]];
             //[self setEnable:true];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch(NSException *exception){
         NSLog(@"changeTheme  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -554,14 +734,12 @@
         } else {
             [self.nightTiledLayerBaseMap setVisible:visible];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeTieldLayerVisible OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         NSLog(@"changeTieldLayerVisible  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -585,14 +763,12 @@
         if (self.labelMapImageLayer != NULL) {
             [self.labelMapImageLayer setVisible:visible];
         }
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeChartLayerVisible OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
         NSLog(@"changeChartLayerVisible  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @"changeChartLayerVisible  ERROR"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -605,14 +781,12 @@
         BOOL visible = [[command.arguments objectAtIndex:0] boolValue];
         if (self.mMapImageLayer == NULL) return;
         [self.mMapImageLayer setVisible:visible];
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeFramesServerState OK"];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception)  {
         NSLog(@"changeFramesServerState  ERROR!");
-        NSString * callbackId = command.callbackId;
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
-        [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     }
 }
 
@@ -625,9 +799,8 @@
     NSNumber *x = [NSNumber numberWithDouble:[[extent center] x]];
     NSNumber *y = [NSNumber numberWithDouble:[[extent center] y]];
     NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:x,@"x",y,@"y", nil];
-    NSString * callbackId = command.callbackId;
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
-    [self.commandDelegate sendPluginResult : pluginResult callbackId : callbackId];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
 
 -(NSString *)convertToJsonData:(NSDictionary *)dict{
@@ -764,13 +937,112 @@
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
     
 }
+/**
+ * 航标图层点击查询
+ * @param identifyLayerResults
+ */
+-(void) handleIdentifyResult:(AGSIdentifyLayerResult*) identifyLayerResults
+{
+    @try {
+        if(identifyLayerResults == [NSNull null]){
+            [self.selectionOverlay.graphics removeAllObjects];
+            UIWebView *uiWebView = (UIWebView*)self.webView;
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            return;
+        }
+        AGSIdentifyLayerResult *identifyResult =[identifyLayerResults.sublayerResults firstObject];
+        NSString *layerName = identifyResult.layerContent.name;
+        AGSGeometry *geom = [[identifyResult.geoElements firstObject] geometry];
+        double x = geom.extent.center.x;
+        double y = geom.extent.center.y;
+        NSMutableDictionary< NSString *, id > *attrDic =[[identifyResult.geoElements firstObject] attributes];
+        NSString *type = @"";
+        if ([layerName isEqualToString: @"航行标志"]) {
+            type = @"030001";
+        } else if ([layerName isEqualToString: @"提示标志"]) {
+            type = @"030002";
+        } else if ([layerName isEqualToString: @"信号标志"]) {
+            type = @"030003";
+        } else if ([layerName isEqualToString: @"专用标志"]) {
+            type = @"030004";
+        } else if([layerName isEqualToString: @"桥梁"]){
+            type = @"013002";
+        } else if([layerName isEqualToString: @"船闸"]){
+            type = @"013005";
+        }
+        else if([layerName isEqualToString: @"架空线缆"]){
+            type = @"013018";
+        }
+        else if([layerName isEqualToString: @"过河线缆"]){
+            type = @"013016";
+        }
+        else if([layerName isEqualToString: @"过河管道"]){
+            type = @"013017";
+        }
+        else {
+            //webView.loadUrl("javascript:window.$types.map.element.close()");
+            //[self.selectionOverlay]
+            UIWebView *uiWebView = (UIWebView*)self.webView;
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            [self.selectionOverlay.graphics removeAllObjects];
+            return;
+        }
+        NSRange range=[layerName rangeOfString:@"标志"];
+        if(range.location!=NSNotFound){
+            [attrDic setValue:AIDSNAVIGATION_CODE forKey:@"typeId"];
+            
+            NSString *litchr = [attrDic valueForKey:@"LITCHR"];
+            BOOL isBlank = [Utils isBlankString:litchr];
+            if(isBlank)
+                [attrDic setValue:@"" forKey:@"lightCharacter"];
+            else
+                [attrDic setValue:litchr forKey:@"lightCharacter"];
+        }
+        else{
+            [attrDic setValue:type forKey:@"typeId"];
+        }
+        
+        
+        
+        [attrDic setValue:[attrDic  valueForKey:@"OBJECTID"] forKey:@"id"];
+        [attrDic setValue:layerName forKey:@"type"];
+        [attrDic setValue:[attrDic  valueForKey:@"NOBJNM"] forKey:@"name"];
+        [attrDic setValue:[NSString stringWithFormat:@"%.4f",x] forKey:@"longitude"];
+        [attrDic setValue:[NSString stringWithFormat:@"%.4f",y] forKey:@"latitude"];
+        [attrDic setValue:[NSNumber numberWithDouble:[self getLength:x :y]] forKey:@"distance"];
+        
+        NSString *resultJson = [Utils jsonStrConvertByObject:attrDic];
+        
+        NSNumber *numX = [NSNumber numberWithDouble:x];
+        NSNumber *numY = [NSNumber numberWithDouble:y];
+        NSNumber *numA = [NSNumber numberWithDouble:0.0];
+        NSNumber *numW = [NSNumber numberWithDouble:40.0];
+        NSNumber *numH = [NSNumber numberWithDouble:40.0];
+        NSNumber *numOffsetY = [NSNumber numberWithDouble:10.0];
+        NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:numX,@"x",numY,@"y",numA,@"a",numW,@"w",numH,@"h",numOffsetY,@"offsetY", nil];
+        [self setExtentFrame:centerParam :self.selectionOverlay :false];
+        
+        NSString *js = [@"javascript:window.$types.map.element.click('" stringByAppendingFormat:@"%@,%@,%@,%@",@"1", @"', '", resultJson, @"')"];
+        UIWebView *uiWebView = (UIWebView*)self.webView;
+        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+
+        
+    }@catch (NSException *exception){
+        
+    }
+}
+
+
+-(void)refreshUI:(NSString*)js
+{
+    
+}
+
 
 /**
  * 获取坐标点与当位置的 距离
- *
  * @param x
  * @param y
- *
  * @return
  */
 -(double)  getLength:(double) x :(double)y
@@ -780,12 +1052,10 @@
         if (self.curPointX == 0 && self.curPointY == 0) {//未开启定位直接返回0处理
             return length;
         }
-
         AGSPolylineBuilder *polylineBuilder = [[AGSPolylineBuilder
                                                   alloc]initWithSpatialReference:[AGSSpatialReference WGS84]];
         [polylineBuilder addPointWithX:x y:y];
         [polylineBuilder addPointWithX:self.curPointX y:self.curPointY];
-
         AGSPolyline *boatRoute = [polylineBuilder toGeometry];
         AGSGeodeticCurveType geodeticCurveType = AGSGeodeticCurveTypeGeodesic;
         AGSLinearUnit *unit =[AGSLinearUnit meters];
@@ -793,14 +1063,74 @@
         length = [AGSGeometryEngine geodeticLengthOfGeometry:boatRoute lengthUnit:unit curveType:geodeticCurveType];
         //lengthGeodetic(boatRoute, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GEODESIC);
         return length;
-        
     }
     @catch (NSException *exception){}
-          
 }
 
+//地图设置显示隐藏
+-(void) setVisibility:(CDVInvokedUrlCommand*)command{
+    BOOL hidden = [[command.arguments objectAtIndex:0] boolValue];
+    [self.mapView setHidden:!hidden];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
 
+//获取地图当前范围参数
+-(void) getMapExtent:(CDVInvokedUrlCommand*) command
+{
+    NSNumber *xMin = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMin];
+    NSNumber *xMax = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.xMax];
+    NSNumber *yMin = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.yMin];
+    NSNumber *yMax = [[NSNumber alloc] initWithDouble:self.mapView.visibleArea.extent.yMax];
+    NSArray *mapExtent = [[NSArray alloc] initWithObjects:xMin,xMax,yMin,yMax, nil];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [mapExtent componentsJoinedByString:@","]];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
 
+/**
+ * 路径规划中  地图选点的定位接口
+ * @param callbackContext
+ */
+-(void) getSelectCenter:(CDVInvokedUrlCommand *) command{
+    @try {
+        AGSEnvelope *extent = [self.mapView.visibleArea extent];
+        double x = [[extent center] x];
+        double y = [[extent center] y];
+        double centerY = [[extent center] y];
+        double miny = extent.yMin;
+        double many = extent.yMax;
+        centerY = centerY - (many - miny) * 0.09;
+        AGSPoint *point = [[AGSPoint alloc] initWithX:x y:y spatialReference:[self.mapView spatialReference]];
+        [self.mapView setViewpointCenter:point scale:[self.mapView mapScale] completion:false];
+        NSDictionary *centerPoint = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:x],@"x",[NSNumber numberWithDouble:centerY],@"y", nil];
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : [self convertToJsonData :centerPoint]];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    } @catch (NSException *e) {
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    }
+}
+
+/**
+ * 切换助航视角状态
+ * @param string
+ * @param callbackContext
+ */
+-(void) changeNavigationType:(CDVInvokedUrlCommand*)command{
+    self.guideModelType = [[command.arguments objectAtIndex:0] stringValue];
+    CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeNavigationType"];
+    [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+}
+
+-(NSDictionary*) getMapViewExtent
+{
+    NSNumber *minX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMin];
+    NSNumber *maxX = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.xMax];
+    NSNumber *minY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMin];
+    NSNumber *maxY = [NSNumber numberWithDouble: self.mapView.visibleArea.extent.yMax];
+    NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
+    return mapExtentDic;
+}
 @end
 
 

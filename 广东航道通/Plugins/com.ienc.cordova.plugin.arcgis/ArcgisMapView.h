@@ -1,6 +1,7 @@
 #import <Cordova/CDVPlugin.h>
 #import <UIKit/UIKit.h>
 #import <ArcGIS/ArcGIS.h>
+#import "Utils.h"
 @interface ArcgisMapView :CDVPlugin
 //变量
 /**
@@ -80,13 +81,16 @@
 @property double curPointY;
 
 @property (nonatomic, strong) NSTimer *timer;//定时器
-
-
+@property Boolean isPause;//是否暂停
+@property NSInteger currentSecond;//当前毫秒数
+@property (nonatomic,strong)NSThread *timerThread;
+@property (nonatomic,strong)NSThread *navMapThread;
 /**
  插件初始化回调函数
  */
 - (void)pluginInitialize;
 -(void) clearWeatherGraphics:(double) scale;
+-(NSDictionary*) getMapViewExtent;
 /**
  获取版本
  

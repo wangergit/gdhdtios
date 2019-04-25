@@ -135,7 +135,6 @@
 		3DDCB3DE1660426199E8AD59 /* CDVLocation.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = CDVLocation.h; path = org.apache.cordova.geolocation/CDVLocation.h; sourceTree = "<group>"; };
 		3EDF9B1B30724CB6A7C6FC23 /* CDVOrientation.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = CDVOrientation.m; path = "cordova-plugin-screen-orientation/CDVOrientation.m"; sourceTree = "<group>"; };
 		41D6AC98976141BF80969386 /* UIKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		438C8EBB22699FD400537C26 /* Constant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constant.h; path = com.ienc.cordova.plugin.arcgis/Constant.h; sourceTree = "<group>"; };
 		43CDC10A22707272004C0514 /* Constant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constant.h; sourceTree = "<group>"; };
 		43CDC10B22707286004C0514 /* Constant.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Constant.m; sourceTree = "<group>"; };
 		43CDC10D227072A1004C0514 /* ArcgisUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArcgisUtils.h; sourceTree = "<group>"; };
@@ -364,7 +363,6 @@
 			children = (
 				43CDC109227071C6004C0514 /* utils */,
 				43CDC107227071B4004C0514 /* constant */,
-				438C8EBB22699FD400537C26 /* Constant.h */,
 				0394EE70D86148F7AF9EFB05 /* ArcgisMapView.m */,
 				511C00FCEC804E298DFEF92F /* ArcgisMapView.h */,
 				291D77E529964181B41D09FC /* AppVersion.m */,

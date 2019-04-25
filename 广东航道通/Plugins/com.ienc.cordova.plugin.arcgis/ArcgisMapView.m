@@ -15,7 +15,7 @@
  插件初始化回调函数
  */
 - (void)pluginInitialize{
-    [self.webView setUserInteractionEnabled:YES];
+    [self.webView setUserInteractionEnabled:false];
     self.TAG = @"ArcgisMapView";
     self.themeState = @"light";
     self.mapScale = 0.0;
@@ -49,6 +49,7 @@
     
     [self initMap];
     
+    
     //webiew 背景设为透明
     [self.webView setOpaque:NO];
     
@@ -58,7 +59,7 @@
     [self.mapView setUserInteractionEnabled:YES];
     //初始化线程
     self.timerThread = [[NSThread alloc]initWithTarget:self selector:@selector(threadRun) object:nil];
-    
+    self.aisThread = [[NSThread alloc]initWithTarget:self selector:@selector(aisRun) object:nil];
 }
 
 -(void)initTimer
@@ -120,43 +121,43 @@
                     //水位站
                     if (self.waterStationOverlay.isVisible) {
                         //[self performSelectorOnMainThread:@selector(refreshTableView) withObject:nil waitUntilDone:YES];
-                        NSString *js = [@"javascript:window.$types.map.search.water('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        NSString *js = [@"window.$types.map.search.water('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                         //webView.loadUrl("javascript:window.$types.map.search.water('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
                     }
                     //标注
                     if (self.markOverlay.isVisible) {
-                        NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        NSString *js = [@"window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                         //webView.loadUrl("javascript:window.$types.map.search.label('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
                     }
                     //船舶
                     if (self.shipOverlay.isVisible) {
-                        NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        NSString *js = [@"window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                         //webView.loadUrl("javascript:window.$types.map.search.boat('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
                     }
                     //上报
                     if (self.reportOverlay.isVisible) {
-                        NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                        NSString *js = [@"window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                         //webView.loadUrl("javascript:window.$types.map.search.report('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "')");
                     }
                 }
                 if (self.mapView.mapScale <= 50000 && self.airworthinessOverlay.isVisible) {
-                    NSString *js = [@"javascript:window.$types.map.search.depth('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@",'true')"];
+                    NSString *js = [@"window.$types.map.search.depth('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@",'true')"];
                     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                     //webView.loadUrl("javascript:window.$types.map.search.depth('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' , '" + true + "')");
                 }
                 //天气请求
                 if (self.weatherOverlay.isVisible) {
                     NSString *scale = [NSString stringWithFormat:@"%f",self.mapView.mapScale];
-                    NSString *js = [@"javascript:window.$types.map.search.weather('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"', '",scale,@",'true')"];
+                    NSString *js = [@"window.$types.map.search.weather('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"', '",scale,@",'true')"];
                     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                     //webView.loadUrl("javascript:window.$types.map.search.weather('" + minx + "', '" + miny + "', '" + maxx + "', '" + maxy + "' ," + mapView.getMapScale() + ")");
                 }
                 //地图选点接口触发
-                NSString *js =@"javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}";
+                NSString *js =@"if(window.$types.map.selection.move){window.$types.map.selection.move()}";
                 [uiWebView stringByEvaluatingJavaScriptFromString:js ];
                 //webView.loadUrl("javascript:if(window.$types.map.selection.move){window.$types.map.selection.move()}");
                 
@@ -166,6 +167,26 @@
         }@catch (NSException *exception) {}
     }
     
+}
+-(void)aisRun
+{
+    while(true){
+        if([[NSThread currentThread] isCancelled])
+        {
+            [NSThread exit];
+            //break;
+        }
+        NSDictionary *extent = [self getMapViewExtent];
+        NSString *minx = [extent valueForKey:@"minx"];
+        NSString *maxx = [extent valueForKey:@"maxx"];
+        NSString *miny = [extent valueForKey:@"miny"];
+        NSString *maxy = [extent valueForKey:@"maxy"];
+        UIWebView *uiWebView = (UIWebView*)self.webView;
+        NSString *js = [@"window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+        [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+        [NSThread sleepForTimeInterval:30];
+
+    }
 }
 -(void) refreshMapLayers
 {
@@ -180,7 +201,7 @@
         if (scale) {
             //标注
             if (self.markOverlay.isVisible) {
-                NSString *js = [@"javascript:window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                NSString *js = [@"window.$types.map.search.label('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                 [uiWebView stringByEvaluatingJavaScriptFromString:js ];
             }
             //船舶
@@ -191,7 +212,7 @@
             //}
             //上报
             if (self.reportOverlay.isVisible) {
-                NSString *js = [@"javascript:window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+                NSString *js = [@"window.$types.map.search.report('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
                 [uiWebView stringByEvaluatingJavaScriptFromString:js ];
             }
             
@@ -361,9 +382,23 @@
     [self.mapView setBackgroundGrid:grid];
     [self.mapView setAttributionTextVisible:false];
     //[self.mapView setViewpoint:[[AGSViewpoint alloc] initWithCenter:[[AGSPoint alloc] initWithX:113.596 y:22.92 spatialReference:self.mapSpatialReference] scale:32500]];//设置地图中心点
+    
+    //[self registerMapViewPointChangeHandler];
+    self.mapView.touchDelegate = self;
 }
 
-
+-(void)registerMapViewPointChangeHandler
+{
+    [self.mapView setViewpointChangedHandler:^{
+       
+    }];
+    
+}
+//tap at screen Envent on MapView
+-(void)geoView:(AGSGeoView *)geoView didTapAtScreenPoint:(CGPoint)screenPoint mapPoint:(AGSPoint *)mappoint
+{
+    int sss = 0;
+}
 /**
  十六进制数值转换为UIColor
  @param hex 十六进制数值转
@@ -930,10 +965,10 @@
     NSString *sFinalPercentage = [NSString stringWithFormat:@"%f",finalPercentage];
     UIWebView *uiWebView = (UIWebView*)self.webView;
     
-    [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
+    [uiWebView  stringByEvaluatingJavaScriptFromString:@"window.$types.map.scale.toggleVisible(true)"];
     
-    //[uiWebView stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
-    NSString *js = [@"javascript:window.$types.map.scale.transfer('" stringByAppendingFormat:@"%@,%@,%@,%@",finalScaleText,@"', '",sFinalPercentage,@"')"];
+    //[uiWebView stringByEvaluatingJavaScriptFromString:@:window.$types.map.scale.toggleVisible(true)"];
+    NSString *js = [@"window.$types.map.scale.transfer('" stringByAppendingFormat:@"%@,%@,%@,%@",finalScaleText,@"', '",sFinalPercentage,@"')"];
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
     
 }
@@ -947,7 +982,7 @@
         if(identifyLayerResults == [NSNull null]){
             [self.selectionOverlay.graphics removeAllObjects];
             UIWebView *uiWebView = (UIWebView*)self.webView;
-            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"window.$types.map.element.close()"];
             return;
         }
         AGSIdentifyLayerResult *identifyResult =[identifyLayerResults.sublayerResults firstObject];
@@ -983,7 +1018,7 @@
             //webView.loadUrl("javascript:window.$types.map.element.close()");
             //[self.selectionOverlay]
             UIWebView *uiWebView = (UIWebView*)self.webView;
-            [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
+            [uiWebView  stringByEvaluatingJavaScriptFromString:@"window.$types.map.element.close()"];
             [self.selectionOverlay.graphics removeAllObjects];
             return;
         }
@@ -1022,7 +1057,7 @@
         NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:numX,@"x",numY,@"y",numA,@"a",numW,@"w",numH,@"h",numOffsetY,@"offsetY", nil];
         [self setExtentFrame:centerParam :self.selectionOverlay :false];
         
-        NSString *js = [@"javascript:window.$types.map.element.click('" stringByAppendingFormat:@"%@,%@,%@,%@",@"1", @"', '", resultJson, @"')"];
+        NSString *js = [@"window.$types.map.element.click('" stringByAppendingFormat:@"%@,%@,%@,%@",@"1", @"', '", resultJson, @"')"];
         UIWebView *uiWebView = (UIWebView*)self.webView;
         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
 

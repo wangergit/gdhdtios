@@ -2,6 +2,7 @@
 #import "Constant.h"
 #import <Cordova/CDVPluginResult.h>
 #import <ArcGIS/ArcGIS.h>
+#import <math.h>
 
 
 
@@ -15,10 +16,11 @@
  插件初始化回调函数
  */
 - (void)pluginInitialize{
-    [self.webView setUserInteractionEnabled:false];
+    [self.webView setUserInteractionEnabled:true];
     self.TAG = @"ArcgisMapView";
     self.themeState = @"light";
     self.mapScale = 0.0;
+    self.lastMapScale = 0.0;
     self.mapViewLoad = false;
     self.mapEnable = true;
     self.startLine = 22200262;
@@ -383,21 +385,37 @@
     [self.mapView setAttributionTextVisible:false];
     //[self.mapView setViewpoint:[[AGSViewpoint alloc] initWithCenter:[[AGSPoint alloc] initWithX:113.596 y:22.92 spatialReference:self.mapSpatialReference] scale:32500]];//设置地图中心点
     
-    //[self registerMapViewPointChangeHandler];
+    [self registerMapViewPointChangeHandler];
     self.mapView.touchDelegate = self;
 }
 
 -(void)registerMapViewPointChangeHandler
 {
     [self.mapView setViewpointChangedHandler:^{
-       
+        NSNumber *currentScale = [NSNumber numberWithDouble:self.mapView.mapScale] ;
+        //if(fabs(self.lastMapScale-self.mapView.mapScale)>0.01)
+ 
+        
+        [self performSelectorOnMainThread:@selector(resetScalebar:) withObject:currentScale waitUntilDone:NO];
+        //[self disposeMapScale:self.mapView.mapScale];
     }];
     
 }
 //tap at screen Envent on MapView
 -(void)geoView:(AGSGeoView *)geoView didTapAtScreenPoint:(CGPoint)screenPoint mapPoint:(AGSPoint *)mappoint
 {
-    int sss = 0;
+    double tolerance = 10;
+    [self.mapView identifyGraphicsOverlaysAtScreenPoint:screenPoint tolerance:tolerance returnPopupsOnly:false completion:^(NSArray<AGSIdentifyGraphicsOverlayResult *> * _Nullable identifyResults, NSError * _Nullable error) {
+        if(error){
+            NSLog(@"点击查询出现错误:%@",error);
+        }
+        else{
+            if(identifyResults.count>0){
+                [[[[identifyResults firstObject] graphics] firstObject] attributes];
+            }
+            
+        }
+    }];
 }
 /**
  十六进制数值转换为UIColor
@@ -888,6 +906,12 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)resetScalebar:(NSNumber *)scaleNum
+{
+    double scale = [scaleNum doubleValue];
+    [self disposeMapScale:scale];
+}
+
 /**
  * 地图缩放事件处理
  * @param scale
@@ -970,6 +994,8 @@
     //[uiWebView stringByEvaluatingJavaScriptFromString:@:window.$types.map.scale.toggleVisible(true)"];
     NSString *js = [@"window.$types.map.scale.transfer('" stringByAppendingFormat:@"%@,%@,%@,%@",finalScaleText,@"', '",sFinalPercentage,@"')"];
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+    
+    //self.lastMapScale = scale;
     
 }
 /**

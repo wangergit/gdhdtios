@@ -20,6 +20,7 @@
 //@property (nonatomic, strong) AGSBasemap *basemap;
 @property (nonatomic, strong) AGSLocationDisplay *locationDisplay;
 @property double mapScale ; //地图比例尺记录
+@property double lastMapScale;//
 @property (nonatomic, strong) AGSArcGISMapImageLayer *mMapImageLayer;//图幅
 @property (nonatomic, strong) AGSArcGISMapImageLayer *beaconMapImageLayer;//航标
 @property (nonatomic, strong) AGSArcGISMapImageLayer *labelMapImageLayer;//地名
@@ -79,6 +80,8 @@
 //当前定位坐标记录
 @property double curPointX;
 @property double curPointY;
+
+
 
 @property (nonatomic, strong) NSTimer *timer;//定时器
 @property Boolean isPause;//是否暂停

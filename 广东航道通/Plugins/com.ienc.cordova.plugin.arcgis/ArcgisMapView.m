@@ -854,12 +854,19 @@
 }
 
 /**
+ 前端页面渲染完成/获取地图比例尺
+ */
+- (void)disposeMapScale:(CDVInvokedUrlCommand*)command
+{
+    [self disposeMapScaleSelf:self.mapView.mapScale];
+}
+
+/**
  * 地图缩放事件处理
  * @param scale
  */
-- (void) disposeMapScale:(double) scale
+- (void) disposeMapScaleSelf:(double) scale
 {
-    //Double curScale = scale / 1000;
     NSString *scaleText = @"";
     double percentage = 0.0;
     if(scale > 0 && scale <= 100){
@@ -922,6 +929,9 @@
     }else if(scale > 100000000 && scale <= 200000000){
         scaleText = @"200000公里";
         percentage = (scale - 100000000) / (200000000 - 100000000);
+    }else {
+        scaleText = @"200000多公里";
+        percentage = 1;
     }
     
     //比例尺显示
@@ -929,12 +939,11 @@
     double finalPercentage = percentage * 100;
     NSString *sFinalPercentage = [NSString stringWithFormat:@"%f",finalPercentage];
     UIWebView *uiWebView = (UIWebView*)self.webView;
-    
-    [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
-    
-    //[uiWebView stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.scale.toggleVisible(true)"];
-    NSString *js = [@"javascript:window.$types.map.scale.transfer('" stringByAppendingFormat:@"%@,%@,%@,%@",finalScaleText,@"', '",sFinalPercentage,@"')"];
-    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
+    [uiWebView  stringByEvaluatingJavaScriptFromString:@"window.$types.map.scale.toggleVisible(true)"];
+    //比例尺参数传递
+    NSString *s = @"window.$types.map.scale.transfer('";
+    s = [[[[s stringByAppendingString:finalScaleText] stringByAppendingString:@"','"] stringByAppendingString:sFinalPercentage] stringByAppendingString:@"')"];
+    [uiWebView  stringByEvaluatingJavaScriptFromString:s];
     
 }
 /**

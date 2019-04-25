@@ -58,7 +58,21 @@
     [self.mapView setUserInteractionEnabled:YES];
     //初始化线程
     self.timerThread = [[NSThread alloc]initWithTarget:self selector:@selector(threadRun) object:nil];
-    
+    //定位
+    [self.mapView.locationDisplay setDataSourceStatusChangedHandler:^(BOOL started) {
+    }];
+    [self.mapView.locationDisplay setLocationChangedHandler:^(AGSLocation * _Nonnull location) {
+        self.curPointX = location.position.x;
+        self.curPointY = location.position.y;
+        if(self.curPointX != 0 && self.curPointY != 0){
+            location.course;//角度
+            location.velocity;//速度
+            AGSPoint* myMarkerPoint = [[AGSPoint alloc] initWithX:self.curPointX y:self.curPointY spatialReference:self.mapView.spatialReference];
+            //self.mapView.locationDisplay.showLocation = YES;
+            [self.mapView setViewpointCenter:myMarkerPoint scale:2000 completion:false];
+        }
+    }];
+    [self.mapView.locationDisplay startWithCompletion:nil];
 }
 
 -(void)initTimer
@@ -989,8 +1003,6 @@
             type = @"013017";
         }
         else {
-            //webView.loadUrl("javascript:window.$types.map.element.close()");
-            //[self.selectionOverlay]
             UIWebView *uiWebView = (UIWebView*)self.webView;
             [uiWebView  stringByEvaluatingJavaScriptFromString:@"javascript:window.$types.map.element.close()"];
             [self.selectionOverlay.graphics removeAllObjects];

@@ -12,7 +12,7 @@
 // arcgis ios 原生实现类
 @implementation ArcgisMapView
 
-
+ 
 /**
  插件初始化回调函数
  */

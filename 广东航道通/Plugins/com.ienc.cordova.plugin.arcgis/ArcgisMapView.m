@@ -12,7 +12,7 @@
 // arcgis ios 原生实现类
 @implementation ArcgisMapView
 
- 
+
 /**
  插件初始化回调函数
  */
@@ -63,6 +63,21 @@
     //初始化线程
     self.timerThread = [[NSThread alloc]initWithTarget:self selector:@selector(threadRun) object:nil];
     self.aisThread = [[NSThread alloc]initWithTarget:self selector:@selector(aisRun) object:nil];
+    //定位
+    [self.mapView.locationDisplay setDataSourceStatusChangedHandler:^(BOOL started) {
+    }];
+    [self.mapView.locationDisplay setLocationChangedHandler:^(AGSLocation * _Nonnull location) {
+        self.curPointX = location.position.x;
+        self.curPointY = location.position.y;
+        if(self.curPointX != 0 && self.curPointY != 0){
+            location.course;//角度
+            location.velocity;//速度
+            AGSPoint* myMarkerPoint = [[AGSPoint alloc] initWithX:self.curPointX y:self.curPointY spatialReference:self.mapView.spatialReference];
+            //self.mapView.locationDisplay.showLocation = YES;
+            [self.mapView setViewpointCenter:myMarkerPoint scale:2000 completion:false];
+        }
+    }];
+    [self.mapView.locationDisplay startWithCompletion:nil];
 }
 
 -(void)initTimer
@@ -80,7 +95,7 @@
 - (void)addTimer
 {
     if(!self.timer)
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timer_callback) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
 }
 
@@ -102,7 +117,7 @@
 }
 //定时器执行函数
 - (void)timer_callback:(NSTimer *)tempTimer {
-
+    
     
 }
 //新线程
@@ -189,7 +204,7 @@
         NSString *js = [@"window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
         [NSThread sleepForTimeInterval:30];
-
+        
     }
 }
 -(void) refreshMapLayers
@@ -210,8 +225,8 @@
             }
             //船舶
             //if (self.shipOverlay.isVisible) {
-                //NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
-                //[uiWebView stringByEvaluatingJavaScriptFromString:js ];
+            //NSString *js = [@"javascript:window.$types.map.search.boat('" stringByAppendingFormat:@"%@,%@,%@,%@,%@,%@,%@,%@",minx,@"', '",miny,@"', '",maxx,@"', '",maxy,@"')"];
+            //[uiWebView stringByEvaluatingJavaScriptFromString:js ];
             
             //}
             //上报
@@ -398,7 +413,7 @@
     [self.mapView setViewpointChangedHandler:^{
         NSNumber *currentScale = [NSNumber numberWithDouble:self.mapView.mapScale] ;
         //if(fabs(self.lastMapScale-self.mapView.mapScale)>0.01)
- 
+        
         
         [self performSelectorOnMainThread:@selector(resetScalebar:) withObject:currentScale waitUntilDone:NO];
         //[self disposeMapScale:self.mapView.mapScale];
@@ -432,16 +447,16 @@
             
             else{
                 [self.mapView identifyLayersAtScreenPoint:screenPoint tolerance:20 returnPopupsOnly:false completion:^(NSArray<AGSIdentifyLayerResult *> * _Nullable identifyResults, NSError * _Nullable error) {
-                     @try{
+                    @try{
                         if(error){
                             NSLog(@"点击查询出现错误:%@",error);
                         }
                         else{
                             [self handleIdentifyResult:[identifyResults objectAtIndex:0]];
                         }
-                     }@catch(NSException *ex){
-                         NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
-                     }
+                    }@catch(NSException *ex){
+                        NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+                    }
                 }];
             }
             
@@ -859,10 +874,10 @@
     NSString *json = [Utils jsonStrConvertByObject:attrDic];
     
     NSString *js = [[[[@"window.$types.map.element.click('"
-                      stringByAppendingString:layerName]
+                       stringByAppendingString:layerName]
                       stringByAppendingString:@"', '"]
-                      stringByAppendingString:json]
-                      stringByAppendingString:@"')"];
+                     stringByAppendingString:json]
+                    stringByAppendingString:@"')"];
     UIWebView *uiWebView = (UIWebView*)self.webView;
     [uiWebView stringByEvaluatingJavaScriptFromString:js ];
 }
@@ -913,7 +928,7 @@
 }
 
 - (void)mapView:(AGSMapView *)mapView didTapAtPoint:(CGPoint)screen mapPoint:(nonnull
-    AGSPoint *)mappoint features:(NSDictionary *)features {
+                                                                              AGSPoint *)mappoint features:(NSDictionary *)features {
     NSLog(@"User tapped on the map at %f,%f", mappoint.x, mappoint.y);
 }
 
@@ -1129,12 +1144,19 @@
 }
 
 /**
+ 前端页面渲染完成/获取地图比例尺
+ */
+- (void)disposeMapScale:(CDVInvokedUrlCommand*)command
+{
+    [self disposeMapScaleSelf:self.mapView.mapScale];
+}
+
+/**
  * 地图缩放事件处理
  * @param scale
  */
-- (void) disposeMapScale:(double) scale
+- (void) disposeMapScaleSelf:(double) scale
 {
-    //Double curScale = scale / 1000;
     NSString *scaleText = @"";
     double percentage = 0.0;
     if(scale > 0 && scale <= 100){
@@ -1197,6 +1219,9 @@
     }else if(scale > 100000000 && scale <= 200000000){
         scaleText = @"200000公里";
         percentage = (scale - 100000000) / (200000000 - 100000000);
+    }else {
+        scaleText = @"200000多公里";
+        percentage = 1;
     }
     
     //比例尺显示
@@ -1257,8 +1282,6 @@
             type = @"013017";
         }
         else {
-            //webView.loadUrl("javascript:window.$types.map.element.close()");
-            //[self.selectionOverlay]
             UIWebView *uiWebView = (UIWebView*)self.webView;
             [uiWebView  stringByEvaluatingJavaScriptFromString:@"window.$types.map.element.close()"];
             [self.selectionOverlay.graphics removeAllObjects];
@@ -1271,9 +1294,9 @@
             NSString *litchr = [attrDic valueForKey:@"LITCHR"];
             BOOL isBlank = [Utils isBlankString:litchr];
             if(isBlank)
-                [attrDic setValue:@"" forKey:@"lightCharacter"];
+            [attrDic setValue:@"" forKey:@"lightCharacter"];
             else
-                [attrDic setValue:litchr forKey:@"lightCharacter"];
+            [attrDic setValue:litchr forKey:@"lightCharacter"];
         }
         else{
             [attrDic setValue:type forKey:@"typeId"];
@@ -1302,7 +1325,7 @@
         NSString *js = [@"window.$types.map.element.click('" stringByAppendingFormat:@"%@,%@,%@,%@",@"1", @"', '", resultJson, @"')"];
         UIWebView *uiWebView = (UIWebView*)self.webView;
         [uiWebView stringByEvaluatingJavaScriptFromString:js ];
-
+        
         
     }@catch (NSException *exception){
         NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
@@ -1330,7 +1353,7 @@
             return length;
         }
         AGSPolylineBuilder *polylineBuilder = [[AGSPolylineBuilder
-                                                  alloc]initWithSpatialReference:[AGSSpatialReference WGS84]];
+                                                alloc]initWithSpatialReference:[AGSSpatialReference WGS84]];
         [polylineBuilder addPointWithX:x y:y];
         [polylineBuilder addPointWithX:self.curPointX y:self.curPointY];
         AGSPolyline *boatRoute = [polylineBuilder toGeometry];

@@ -1689,7 +1689,7 @@ var KM = 'km/h';
         this.readAgreeTimer();
     },
     mounted: function mounted() {
-        window.arcgis && window.arcgis.disposeMapScale();
+        window.Arcgis && window.Arcgis.disposeMapScale();
     },
 
     methods: extends_default()({
@@ -2091,6 +2091,7 @@ var KM = 'km/h';
             this.transfer = value;
         },
         handlerScaleTransfer: function handlerScaleTransfer(message, value) {
+                               console.log(message + "   " + value);
             this.scale.message = message;
             this.scale.value = value;
         },

@@ -13,5 +13,6 @@
 
 @interface Utils : NSObject
   +(NSString *)jsonStrConvertByObject:(NSMutableDictionary *)dict;
+  +(NSArray *)jsonArrayByString:(NSString *)jsonStr;
   +(BOOL) isBlankString:(NSString *)string;
 @end

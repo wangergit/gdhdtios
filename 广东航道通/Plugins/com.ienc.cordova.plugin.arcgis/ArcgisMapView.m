@@ -3,6 +3,7 @@
 #import <Cordova/CDVPluginResult.h>
 #import <ArcGIS/ArcGIS.h>
 #import <math.h>
+#import "ArcgisUtils.h"
 
 
 
@@ -166,7 +167,8 @@
                 self.isPause = false;
                 self.currentSecond = 0;
             }
-        }@catch (NSException *exception) {}
+        }@catch (NSException *exception) {
+            NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);        }
     }
     
 }
@@ -219,7 +221,9 @@
             }
             
         }
-    }@catch (NSException *exception) {}
+    }@catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
 }
 /**
  * 根据比例尺清除天气要素
@@ -411,7 +415,34 @@
         }
         else{
             if(identifyResults.count>0){
-                [[[[identifyResults firstObject] graphics] firstObject] attributes];
+                @try{
+                    NSMutableDictionary *attrDic = [[[[identifyResults firstObject] graphics] firstObject] attributes];
+                    NSString *layerName = [attrDic valueForKey:@"layerName"];
+                    BOOL bl = false;
+                    if(![Utils isBlankString:layerName]){
+                        bl = true;
+                        AGSGraphic *gra =[[[identifyResults firstObject] graphics] objectAtIndex:0];
+                        [self centerByGraphic:gra];
+                        
+                    }
+                }@catch(NSException *ex){
+                    NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+                }
+            }
+            
+            else{
+                [self.mapView identifyLayersAtScreenPoint:screenPoint tolerance:20 returnPopupsOnly:false completion:^(NSArray<AGSIdentifyLayerResult *> * _Nullable identifyResults, NSError * _Nullable error) {
+                     @try{
+                        if(error){
+                            NSLog(@"点击查询出现错误:%@",error);
+                        }
+                        else{
+                            [self handleIdentifyResult:[identifyResults objectAtIndex:0]];
+                        }
+                     }@catch(NSException *ex){
+                         NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+                     }
+                }];
             }
             
         }
@@ -492,7 +523,9 @@
     @try{
         NSString* scale=[command.arguments objectAtIndex:0];
         [self.mapView setViewpointScale:[scale doubleValue] completion:false];
-    } @catch (NSException *exception) {}
+    } @catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -505,7 +538,9 @@
 {
     @try{
         [self.mapView setViewpointScale:[self.mapView mapScale]* 0.5 completion:false];
-    } @catch (NSException *exception) {}
+    } @catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -519,7 +554,9 @@
 {
     @try{
         [self.mapView setViewpointScale:[self.mapView mapScale]*2 completion:false];
-    } @catch (NSException *exception) {}
+    } @catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -649,8 +686,185 @@
         CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
         [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
     } @catch (NSException *exception) {
-        
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
     }
+}
+
+/**
+ *根据所点击的要素类型剧中定位并绘制选中框
+ *
+ *参数
+ */
+-(void)centerByGraphic:(AGSGraphic *)graphic
+{
+    NSString *layerName = [[graphic attributes] valueForKey:@"layerName"];
+    //NSString *grahpicId = [[[graphic attributes] valueForKey:@"id"] stringValue];
+    NSMutableDictionary *attrDic = [graphic attributes];
+    self.selectionLayer = layerName;
+    double w = 0.0;
+    double h = 0.0;
+    double a = 0.0;
+    double x = 0.0;
+    double y = 0.0;
+    double offsetY = 0.0;
+    BOOL flag = true;
+    NSString *text;
+    NSUInteger length;
+    double height;
+    double width;
+    AGSGraphic *cuGraphic  = graphic;
+    
+    if([layerName isEqualToString:@"1"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * py = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = py.height;
+            width = py.width;
+            
+            w = (![Utils isBlankString:text])? (length*10 >= width ? length * 10 : width) : width;
+            h = (![Utils isBlankString:text])? height + 25 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *gr = (AGSPoint *)cuGraphic.geometry;
+            x = gr.x;
+            y = gr.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"2"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * swz = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = swz.height;
+            width = swz.width;
+            
+            w = (![Utils isBlankString:text])? (length*10 >= width ? length * 10 : width) : width;
+            w+=6;
+            h = (![Utils isBlankString:text])? height + 20 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *swzP = (AGSPoint *)cuGraphic.geometry;
+            x = swzP.x;
+            y = swzP.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"3"]){
+        @try{
+            AGSPictureMarkerSymbol * shipSym = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            w = shipSym.width + 2.0;
+            h = shipSym.height + 2.0;
+            a = shipSym.angle;
+            offsetY = 0.0;
+            
+            AGSPoint *shipP = (AGSPoint *)cuGraphic.geometry;
+            x = shipP.x;
+            y = shipP.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"4"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * re = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = re.height - 5;
+            width = re.width + 6;
+            
+            w = (![Utils isBlankString:text])? (length*10 >= width ? length * 10 : width) : width;
+            h = (![Utils isBlankString:text])? height + 25 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *rep = (AGSPoint *)cuGraphic.geometry;
+            x = rep.x;
+            y = rep.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"5"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * weatherP = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = weatherP.height - 5;
+            width = weatherP.width + 6;
+            
+            w = (![Utils isBlankString:text])? (length*10 >= width ? length * 10 : width) : width;
+            h = (![Utils isBlankString:text])? height + 25 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *rep = (AGSPoint *)cuGraphic.geometry;
+            x = rep.x;
+            y = rep.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"6"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * mark = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = mark.height - 5;
+            width = mark.width + 6;
+            
+            w = (![Utils isBlankString:text])? (length*13 >= width ? length * 13 : width) : width;
+            h = (![Utils isBlankString:text])? height + 25 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *rep = (AGSPoint *)cuGraphic.geometry;
+            x = rep.x;
+            y = rep.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    else if([layerName isEqualToString:@"7"]){
+        @try{
+            text = [[attrDic valueForKey:@"name" ] stringValue];
+            length =  text.length;
+            AGSPictureMarkerSymbol * mark = (AGSPictureMarkerSymbol *)cuGraphic.symbol;
+            height = mark.height - 5;
+            width = mark.width + 6;
+            
+            w = (![Utils isBlankString:text])? (length*13 >= width ? length * 13 : width) : width;
+            h = (![Utils isBlankString:text])? height + 25 : height;
+            offsetY = (![Utils isBlankString:text])? -6 : 0;
+            
+            AGSPoint *rep = (AGSPoint *)cuGraphic.geometry;
+            x = rep.x;
+            y = rep.y;
+        }@catch(NSException *ex){
+            NSLog(@"exception.name=%@,exception.reason=%@",ex.name,ex.reason);
+        }
+    }
+    
+    if(flag){
+        NSNumber *numX = [NSNumber numberWithDouble:x];
+        NSNumber *numY = [NSNumber numberWithDouble:y];
+        NSNumber *numA = [NSNumber numberWithDouble:a];
+        NSNumber *numW = [NSNumber numberWithDouble:w];
+        NSNumber *numH = [NSNumber numberWithDouble:h];
+        NSNumber *numOffsetY = [NSNumber numberWithDouble:offsetY];
+        NSDictionary *centerParam = [[NSDictionary alloc] initWithObjectsAndKeys:numX,@"x",numY,@"y",numA,@"a",numW,@"w",numH,@"h",numOffsetY,@"offsetY", nil];
+        [self setExtentFrame:centerParam :self.selectionOverlay :false];
+    }
+    [attrDic setValue:[NSNumber numberWithDouble:[self getLength:x :y]] forKey:@"distance"];
+    NSString *json = [Utils jsonStrConvertByObject:attrDic];
+    
+    NSString *js = [[[[@"window.$types.map.element.click('"
+                      stringByAppendingString:layerName]
+                      stringByAppendingString:@"', '"]
+                      stringByAppendingString:json]
+                      stringByAppendingString:@"')"];
+    UIWebView *uiWebView = (UIWebView*)self.webView;
+    [uiWebView stringByEvaluatingJavaScriptFromString:js ];
 }
 
 /**
@@ -681,8 +895,8 @@
                 [self centerTo:[[centerItem objectForKey:@"x"] doubleValue] :[[centerItem objectForKey:@"y"] doubleValue] :self.mapView.mapScale :false :NULL];
             }
         }];
-    } @catch (NSException *Exception) {
-        //[Exception out];
+    } @catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
     }
 }
 
@@ -693,7 +907,7 @@
 -(void) setEnable:(CDVInvokedUrlCommand*)command{
     BOOL enable = [[command.arguments objectAtIndex:0] boolValue];
     self.mapEnable = enable;
-    //[self.webView setUserInteractionEnabled:!enable];
+    [self.webView setUserInteractionEnabled:!enable];
     CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @""];
     [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
 }
@@ -900,7 +1114,9 @@
         //[self.mapView setViewpointScale:[self.mapView mapScale]* 0.5 completion:false];
         //cordova.getActivity().startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
         
-    } @catch (NSException *exception) {}
+    } @catch (NSException *exception) {
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -1089,7 +1305,7 @@
 
         
     }@catch (NSException *exception){
-        
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
     }
 }
 
@@ -1125,7 +1341,9 @@
         //lengthGeodetic(boatRoute, new LinearUnit(LinearUnitId.METERS), GeodeticCurveType.GEODESIC);
         return length;
     }
-    @catch (NSException *exception){}
+    @catch (NSException *exception){
+        NSLog(@"exception.name=%@,exception.reason=%@",exception.name,exception.reason);
+    }
 }
 
 //地图设置显示隐藏
@@ -1192,6 +1410,61 @@
     NSDictionary *mapExtentDic = [[NSDictionary alloc]initWithObjectsAndKeys:minX,@"minx",minY,@"miny",maxX,@"maxx",maxY,@"maxy",nil];
     return mapExtentDic;
 }
+
+/**
+ *适航水深接口
+ *
+ */
+-(void) setAirworthiness:(CDVInvokedUrlCommand*)command{
+    @try {
+        NSString * jsonStr = [[command.arguments objectAtIndex:0] stringValue];
+        NSArray *jsonArray = [Utils jsonArrayByString:jsonStr];
+        NSData * data = [jsonArray objectAtIndex:0];
+        NSString *data1 = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        
+        NSDictionary *jsonDic = [self dictionaryWithJsonString:data1];
+        
+        NSArray *featureArray = [jsonDic valueForKey:@"features"];
+        
+        NSMutableArray *geometryArray = [NSArray array];
+        
+        
+        for(NSData *feature in featureArray){
+            NSString *data2 = [[NSString alloc]initWithData:feature encoding:NSUTF8StringEncoding];
+            NSDictionary *featureDic = [self dictionaryWithJsonString:data2];
+            NSString *geometrys = [featureDic valueForKey:@"geometry"];
+            
+            NSDictionary *geomDic = [self dictionaryWithJsonString:geometrys];
+            NSString *ringstr = [geomDic valueForKey:@"rings"];
+            
+            NSArray * ringArray = [Utils jsonArrayByString:ringstr];
+            NSString *r = [ringArray objectAtIndex:0];
+            NSArray *ptArray = [Utils jsonArrayByString:r];
+            AGSPolygonBuilder *polygonBuilder = [AGSPolygonBuilder polygonBuilderWithSpatialReference:[ArcgisUtils getSpatialReferences]];            for(NSString* ptstr in ptArray)
+            {
+                NSArray *xy = [Utils jsonArrayByString:ptstr];
+                double x = [[xy objectAtIndex:0] doubleValue];
+                double y = [[xy objectAtIndex:1] doubleValue];
+                [polygonBuilder addPointWithX: x y:y];
+            }
+            AGSGeometry *geom = [polygonBuilder toGeometry];
+            [geometryArray addObject:geom];
+        }
+        AGSGeometry *newGeometry = [AGSGeometryEngine unionGeometries:geometryArray];
+        AGSSimpleFillSymbol *symbol = [AGSSimpleFillSymbol simpleFillSymbolWithStyle:AGSSimpleFillSymbolStyleSolid color:[UIColor colorWithRed:95 green:0 blue:0 alpha:255] outline:nil];
+        AGSGraphic *polygonGraphic = [AGSGraphic graphicWithGeometry:newGeometry symbol:symbol attributes:nil];
+        [self.airworthinessOverlay.graphics addObject:polygonGraphic];
+        
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_OK messageAsString : @"changeFramesServerState OK"];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    } @catch (NSException *exception)  {
+        NSLog(@"适航水深接口  ERROR!");
+        CDVPluginResult * pluginResult =[CDVPluginResult resultWithStatus : CDVCommandStatus_ERROR messageAsString : @""];
+        [self.commandDelegate sendPluginResult : pluginResult callbackId : command.callbackId];
+    }
+}
+
+
 @end
 
 

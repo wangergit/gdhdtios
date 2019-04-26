@@ -118,4 +118,6 @@
 
 - (void)centerAt:(CDVInvokedUrlCommand*)command;
 
+-(void) setAirworthiness:(CDVInvokedUrlCommand*)command;
+
 @end

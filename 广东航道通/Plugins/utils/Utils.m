@@ -21,6 +21,13 @@
         return nil;
     }
 }
+ +(NSArray *)jsonArrayByString:(NSString *)jsonStr
+{
+    NSData *data = [jsonStr dataUsingEncoding: NSUTF8StringEncoding];
+    id jsonObject = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+    NSArray *array = (NSArray *)jsonObject;
+    return array;
+}
 //判断字符串是否为空
 +(BOOL) isBlankString:(NSString *)string {
     if (string == nil || string == NULL) {
